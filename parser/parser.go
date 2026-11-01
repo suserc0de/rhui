@@ -477,7 +477,7 @@ func isComponentTag(name string) bool {
 
 func isVoidHTMLTag(name string) bool {
 	switch strings.ToLower(name) {
-	case "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr":
+	case "!doctype", "!", "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr":
 		return true
 	default:
 		return false
