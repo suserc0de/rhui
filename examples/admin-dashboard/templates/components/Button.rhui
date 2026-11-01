@@ -1,0 +1,17 @@
+<component name="Button">
+  <props>
+    <prop name="variant" default="primary" />
+    <prop name="href" default="" />
+  </props>
+
+  <if test="href != ''">
+    <a href="{{ href }}" class="btn btn-{{ variant }}">
+      <slot />
+    </a>
+  </if>
+  <else>
+    <button type="button" class="btn btn-{{ variant }}">
+      <slot />
+    </button>
+  </else>
+</component>

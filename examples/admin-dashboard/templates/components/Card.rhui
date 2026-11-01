@@ -1,0 +1,19 @@
+<component name="Card">
+  <props>
+    <prop name="title" default="" />
+  </props>
+
+  <div class="card">
+    <if test="title != ''">
+      <div class="card-header">
+        <h3>{{ title }}</h3>
+      </div>
+    </if>
+    <div class="card-body">
+      <slot />
+    </div>
+    <div class="card-footer">
+      <slot:footer />
+    </div>
+  </div>
+</component>

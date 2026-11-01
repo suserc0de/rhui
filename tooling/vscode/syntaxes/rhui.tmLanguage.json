@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "RHUI",
+  "scopeName": "text.html.rhui",
+  "patterns": [
+    {
+      "include": "#interpolation"
+    },
+    {
+      "include": "#component-tag"
+    },
+    {
+      "include": "#control-tag"
+    },
+    {
+      "include": "#slot-tag"
+    },
+    {
+      "include": "text.html.basic"
+    }
+  ],
+  "repository": {
+    "interpolation": {
+      "name": "meta.interpolation.rhui",
+      "begin": "\\{\\{",
+      "end": "\\}\\}",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.interpolation.begin.rhui" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.interpolation.end.rhui" }
+      },
+      "patterns": [
+        {
+          "name": "variable.other.rhui",
+          "match": "[a-zA-Z_][a-zA-Z0-9_.]*"
+        }
+      ]
+    },
+    "component-tag": {
+      "name": "meta.tag.component.rhui",
+      "match": "(<\\/?)(ui:[a-zA-Z0-9_-]+|[A-Z][a-zA-Z0-9_]+)",
+      "captures": {
+        "1": { "name": "punctuation.definition.tag.rhui" },
+        "2": { "name": "entity.name.tag.component.rhui" }
+      }
+    },
+    "control-tag": {
+      "name": "meta.tag.control.rhui",
+      "match": "(<\\/?)(if|else|each|component|props|prop)",
+      "captures": {
+        "1": { "name": "punctuation.definition.tag.rhui" },
+        "2": { "name": "keyword.control.rhui" }
+      }
+    },
+    "slot-tag": {
+      "name": "meta.tag.slot.rhui",
+      "match": "(<\\/?)(slot(?::[a-zA-Z0-9_-]+)?)",
+      "captures": {
+        "1": { "name": "punctuation.definition.tag.rhui" },
+        "2": { "name": "support.function.slot.rhui" }
+      }
+    }
+  }
+}

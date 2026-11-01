@@ -1,0 +1,43 @@
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+  <div>
+    <h1>{{ Heading }}</h1>
+    <p>Realtime SSR Component Dashboard powered by Go and RHUI</p>
+  </div>
+  <div>
+    <button class="btn btn-primary" hx-post="/api/trigger-alert" hx-swap="none">
+      Simulate Live Event
+    </button>
+  </div>
+</div>
+
+<!-- SSE Realtime Notification Container -->
+<div hx-ext="sse" sse-connect="/events" sse-swap="NewNotification" hx-swap="afterbegin" id="live-notifications" style="margin-bottom: 20px;">
+  <!-- Live alerts will be streamed here -->
+</div>
+
+<ui:Card title="Registered Users">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <each items="Users" as="user">
+        <tr>
+          <td>{{ user.ID }}</td>
+          <td><strong>{{ user.Name }}</strong></td>
+          <td>{{ user.Email }}</td>
+          <td>{{ user.Role }}</td>
+        </tr>
+      </each>
+    </tbody>
+  </table>
+
+  <slot:footer>
+    <span>Total Registered Users: {{ len(Users) }}</span>
+  </slot:footer>
+</ui:Card>

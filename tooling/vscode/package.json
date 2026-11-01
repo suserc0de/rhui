@@ -1,0 +1,35 @@
+{
+  "name": "rhui-vscode",
+  "displayName": "RHUI Template Syntax",
+  "description": "Syntax highlighting and language support for RHUI (.rhui) template files.",
+  "version": "0.1.0",
+  "publisher": "coderhaqi",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "rhui",
+        "aliases": [
+          "RHUI",
+          "rhui"
+        ],
+        "extensions": [
+          ".rhui"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "rhui",
+        "scopeName": "text.html.rhui",
+        "path": "./syntaxes/rhui.tmLanguage.json"
+      }
+    ]
+  }
+}
