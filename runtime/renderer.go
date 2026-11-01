@@ -53,7 +53,9 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, scope *Scope) error {
 			return err
 		}
 		if val != nil {
-			_, err = io.WriteString(w, fmt.Sprint(val))
+			strVal := fmt.Sprint(val)
+			escaped := EscapeHTML(strVal)
+			_, err = io.WriteString(w, escaped)
 			return err
 		}
 		return nil
@@ -120,7 +122,13 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 					}
 				}
 			} else if val != nil {
-				if _, err := fmt.Fprintf(w, " %s=\"%s\"", attrName, fmt.Sprint(val)); err != nil {
+				valStr := fmt.Sprint(val)
+				if attrName == "href" || attrName == "src" {
+					valStr = SanitizeURL(valStr)
+				} else {
+					valStr = EscapeHTML(valStr)
+				}
+				if _, err := fmt.Fprintf(w, " %s=\"%s\"", attrName, valStr); err != nil {
 					return err
 				}
 			}
@@ -131,7 +139,13 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 					return err
 				}
 			} else {
-				if _, err := fmt.Fprintf(w, " %s=\"%s\"", attr.Name, attr.Value); err != nil {
+				valStr := attr.Value
+				if attr.Name == "href" || attr.Name == "src" {
+					valStr = SanitizeURL(valStr)
+				} else {
+					valStr = EscapeHTML(valStr)
+				}
+				if _, err := fmt.Fprintf(w, " %s=\"%s\"", attr.Name, valStr); err != nil {
 					return err
 				}
 			}
