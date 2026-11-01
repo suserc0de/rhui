@@ -222,6 +222,23 @@ func OnOrderCompleted(order Order) {
 
 ---
 
+## 💖 Support & Donation
+
+If you find **RHUI** useful for your projects and want to support its ongoing development and maintenance, you can buy me a coffee or donate via PayPal:
+
+<p align="center">
+  <a href="https://paypal.me/ridwanhaqi" target="_blank">
+    <img src="https://img.shields.io/badge/Donate-PayPal-blue.svg?style=for-the-badge&logo=paypal" alt="Donate with PayPal" />
+  </a>
+</p>
+
+- **PayPal Email:** `ridwan.haqi@gmail.com`
+- **PayPal Me:** [paypal.me/ridwanhaqi](https://paypal.me/ridwanhaqi)
+
+Every contribution is greatly appreciated! Thank you for your support. 🙏
+
+---
+
 ## 📄 License
 
 Licensed under the [MIT License](LICENSE).
