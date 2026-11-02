@@ -1,0 +1,17 @@
+<div class="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-lg">
+  <div class="flex items-center justify-between">
+    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ title }}</span>
+    <if test="is_up == true">
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        {{ trend }}
+      </span>
+    </if>
+    <else>
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+        {{ trend }}
+      </span>
+    </else>
+  </div>
+  <div class="text-3xl font-extrabold text-white mt-2">{{ value }}</div>
+  <p class="text-xs text-slate-500 mt-1">Compared to last billing cycle</p>
+</div>

@@ -1,4 +1,4 @@
-<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
   <div>
     <h1>{{ Heading }}</h1>
     <p>Realtime SSR Component Dashboard powered by Go and RHUI</p>
@@ -10,19 +10,26 @@
   </div>
 </div>
 
+<!-- SaaS Metric Cards Row -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
+  <ui:StatsCard title="Monthly Recurring Revenue" value="Rp 148.500.000" trend="+14.2%" is_up="true" />
+  <ui:StatsCard title="Active Subscriptions" value="1,429 Users" trend="+8.5%" is_up="true" />
+  <ui:StatsCard title="Churn Rate" value="0.8%" trend="-0.3%" is_up="true" />
+</div>
+
 <!-- SSE Realtime Notification Container -->
-<div hx-ext="sse" sse-connect="/events" sse-swap="NewNotification" hx-swap="afterbegin" id="live-notifications" style="margin-bottom: 20px;">
+<div hx-ext="sse" sse-connect="/events" sse-swap="NewNotification" hx-swap="afterbegin" id="live-notifications" style="margin-bottom: 24px;">
   <!-- Live alerts will be streamed here -->
 </div>
 
-<ui:Card title="Registered Users">
+<ui:Card title="Customer Subscriptions">
   <table>
     <thead>
       <tr>
         <th>ID</th>
-        <th>Name</th>
+        <th>Customer</th>
         <th>Email</th>
-        <th>Role</th>
+        <th>Plan Role</th>
       </tr>
     </thead>
     <tbody>
@@ -38,6 +45,6 @@
   </table>
 
   <slot:footer>
-    <span>Total Registered Users: {{ len(Users) }}</span>
+    <span>Total Active Enterprise Accounts: {{ len(Users) }}</span>
   </slot:footer>
 </ui:Card>
