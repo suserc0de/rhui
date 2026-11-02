@@ -1,5 +1,10 @@
 package runtime
 
+import (
+	"fmt"
+	"reflect"
+)
+
 // Value represents a generic evaluated value in the template scope.
 type Scope struct {
 	parent *Scope
@@ -15,12 +20,18 @@ func NewScope(data any) *Scope {
 		return s
 	}
 
-	if m, ok := data.(map[string]any); ok {
-		for k, v := range m {
-			s.values[k] = v
+	val := reflect.ValueOf(data)
+	if val.Kind() == reflect.Map {
+		for _, k := range val.MapKeys() {
+			s.values[fmt.Sprint(k.Interface())] = val.MapIndex(k).Interface()
 		}
+	} else if val.Kind() == reflect.Struct {
+		typ := val.Type()
+		for i := 0; i < val.NumField(); i++ {
+			s.values[typ.Field(i).Name] = val.Field(i).Interface()
+		}
+		s.values["."] = data
 	} else {
-		// Put whole object under "." or extract fields
 		s.values["."] = data
 	}
 	return s
