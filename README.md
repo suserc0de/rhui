@@ -1,6 +1,14 @@
 # RHUI (RH Template Engine)
 
 <p align="center">
+  <a href="https://github.com/suserc0de/rhui/actions"><img src="https://img.shields.io/github/actions/workflow/status/suserc0de/rhui/ci.yml?branch=master&style=flat-square&logo=github&label=CI" alt="CI Status" /></a>
+  <a href="https://pkg.go.dev/github.com/coderhaqi/rhui"><img src="https://img.shields.io/badge/Go-Reference-007d9c?style=flat-square&logo=go&logoColor=white" alt="Go Reference" /></a>
+  <a href="https://goreportcard.com/report/github.com/coderhaqi/rhui"><img src="https://img.shields.io/badge/Go%20Report-A%2B-brightgreen?style=flat-square" alt="Go Report Card" /></a>
+  <a href="https://github.com/suserc0de/rhui/releases"><img src="https://img.shields.io/badge/Release-v1.0.0-blue?style=flat-square" alt="Latest Release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
+</p>
+
+<p align="center">
   <b>A component-based, high-performance Server-Side Rendering (SSR) template engine for Go.</b><br>
   Zero JavaScript build-step &bull; Safe by default &bull; Reusable components with slots &bull; Event-Driven SSE
 </p>

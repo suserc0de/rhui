@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2026-11-02
 
 ### Added
 - Phase 0: Project bootstrap, repository layout, position tracker (`ast.Position`), and visual error diagnostics (`rhui.TemplateError`).
@@ -22,4 +22,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase 10: First-class HTMX fragment rendering (`engine.RenderFragment(w, name, fragmentID, data)`).
 - Phase 11: Dynamic attribute spreading (`:attrs="extra_attrs"`) for generic wrapper components.
 - Phase 12: First-class SEO package (`seo/`) with XML Sitemap generator and Schema.org JSON-LD structured data generator.
-- Documentation: Comprehensive `README.md`, PayPal donation support, `LICENSE` (MIT), and `CONTRIBUTING.md`.
+- Quality & CI: Multi-OS GitHub Actions CI workflow (`.github/workflows/ci.yml`) and Fuzz testing suite (`tests/parser_fuzz_test.go`).
+- Documentation: Comprehensive `README.md` with official release badges, PayPal donation support, `LICENSE` (MIT), and `CONTRIBUTING.md`.
