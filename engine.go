@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/coderhaqi/rhui/ast"
-	"github.com/coderhaqi/rhui/compiler"
-	"github.com/coderhaqi/rhui/loader"
-	"github.com/coderhaqi/rhui/parser"
-	"github.com/coderhaqi/rhui/runtime"
+	"github.com/suserc0de/rhui/ast"
+	"github.com/suserc0de/rhui/compiler"
+	"github.com/suserc0de/rhui/loader"
+	"github.com/suserc0de/rhui/parser"
+	"github.com/suserc0de/rhui/runtime"
 )
 
 // Option defines a functional option for configuring the Engine.
@@ -92,6 +92,27 @@ func New(opts ...Option) (*Engine, error) {
 	}
 
 	return e, nil
+}
+
+// EngineOptions configures the Engine when using NewEngine.
+type EngineOptions struct {
+	ViewsDir   string
+	AutoReload bool
+}
+
+// NewEngine is a convenience constructor that creates an Engine from options struct, panicking on fatal initialization error.
+func NewEngine(opts ...EngineOptions) *Engine {
+	var optList []Option
+	if len(opts) > 0 {
+		if opts[0].ViewsDir != "" {
+			optList = append(optList, WithDir(opts[0].ViewsDir))
+		}
+	}
+	e, err := New(optList...)
+	if err != nil {
+		panic(err)
+	}
+	return e
 }
 
 // RegisterFunc registers a custom function to the engine evaluator.

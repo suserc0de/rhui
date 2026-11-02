@@ -3,7 +3,7 @@ package compiler
 import (
 	"fmt"
 
-	"github.com/coderhaqi/rhui/ast"
+	"github.com/suserc0de/rhui/ast"
 )
 
 // ComponentMeta holds compiled metadata and AST representation of a component.

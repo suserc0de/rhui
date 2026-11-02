@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 )
 
 // TestLoad10000ConcurrentRequests evaluates memory stability and zero packet drops under 10,000 requests

@@ -3,7 +3,7 @@ package chi
 import (
 	"net/http"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 )
 
 // Render renders a RHUI template to an http.ResponseWriter within a Chi handler.

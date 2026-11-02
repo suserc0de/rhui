@@ -6,7 +6,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 )
 
 func TestSecurityXSSPrevention(t *testing.T) {

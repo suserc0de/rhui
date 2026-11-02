@@ -7,13 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/coderhaqi/rhui"
-	"github.com/coderhaqi/rhui/adapter/chi"
-	"github.com/coderhaqi/rhui/adapter/echo"
-	"github.com/coderhaqi/rhui/adapter/fiber"
-	"github.com/coderhaqi/rhui/adapter/gin"
-	"github.com/coderhaqi/rhui/adapter/nethttp"
-	"github.com/coderhaqi/rhui/sse"
+	"github.com/suserc0de/rhui"
+	"github.com/suserc0de/rhui/adapter/chi"
+	"github.com/suserc0de/rhui/adapter/echo"
+	"github.com/suserc0de/rhui/adapter/fiber"
+	"github.com/suserc0de/rhui/adapter/gin"
+	"github.com/suserc0de/rhui/adapter/nethttp"
+	"github.com/suserc0de/rhui/sse"
 )
 
 func TestNetHTTPAdapter(t *testing.T) {

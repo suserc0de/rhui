@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/coderhaqi/rhui"
-	"github.com/coderhaqi/rhui/sse"
+	"github.com/suserc0de/rhui"
+	"github.com/suserc0de/rhui/sse"
 )
 
 //go:embed templates/*

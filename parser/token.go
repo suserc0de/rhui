@@ -3,7 +3,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/coderhaqi/rhui/ast"
+	"github.com/suserc0de/rhui/ast"
 )
 
 // TokenType represents the category of lexical tokens in .rhui files.

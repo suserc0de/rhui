@@ -3,7 +3,7 @@ package fiber
 import (
 	"io"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 )
 
 // Engine implements Fiber's fiber.Views interface.

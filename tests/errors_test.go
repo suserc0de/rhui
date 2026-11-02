@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/coderhaqi/rhui"
-	"github.com/coderhaqi/rhui/ast"
+	"github.com/suserc0de/rhui"
+	"github.com/suserc0de/rhui/ast"
 )
 
 func TestPositionString(t *testing.T) {

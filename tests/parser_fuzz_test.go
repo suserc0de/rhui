@@ -3,8 +3,8 @@ package tests
 import (
 	"testing"
 
-	"github.com/coderhaqi/rhui/parser"
-	"github.com/coderhaqi/rhui/runtime"
+	"github.com/suserc0de/rhui/parser"
+	"github.com/suserc0de/rhui/runtime"
 )
 
 // FuzzParser ensures that the lexer and parser never crash or panic on arbitrary input.

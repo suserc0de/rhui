@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 )
 
 // EventOptions specifies metadata for an SSE message.

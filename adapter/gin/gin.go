@@ -3,7 +3,7 @@ package gin
 import (
 	"net/http"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 	"github.com/gin-gonic/gin/render"
 )
 

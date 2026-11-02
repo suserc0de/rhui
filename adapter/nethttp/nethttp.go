@@ -3,7 +3,7 @@ package nethttp
 import (
 	"net/http"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 )
 
 // Render renders a RHUI template to a standard http.ResponseWriter.

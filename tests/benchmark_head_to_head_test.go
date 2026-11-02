@@ -5,7 +5,7 @@ import (
 	htmltmpl "html/template"
 	"testing"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 )
 
 type BenchmarkItem struct {

@@ -5,7 +5,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/coderhaqi/rhui/ast"
+	"github.com/suserc0de/rhui/ast"
 )
 
 // Lexer scans a .rhui source string and produces a stream of Tokens.

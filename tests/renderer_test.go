@@ -5,10 +5,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/coderhaqi/rhui/ast"
-	"github.com/coderhaqi/rhui/compiler"
-	"github.com/coderhaqi/rhui/parser"
-	"github.com/coderhaqi/rhui/runtime"
+	"github.com/suserc0de/rhui/ast"
+	"github.com/suserc0de/rhui/compiler"
+	"github.com/suserc0de/rhui/parser"
+	"github.com/suserc0de/rhui/runtime"
 )
 
 func TestRendererBasicElementAndInterpolation(t *testing.T) {

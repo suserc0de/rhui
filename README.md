@@ -2,8 +2,8 @@
 
 <p align="center">
   <a href="https://github.com/suserc0de/rhui/actions"><img src="https://img.shields.io/github/actions/workflow/status/suserc0de/rhui/ci.yml?branch=master&style=flat-square&logo=github&label=CI" alt="CI Status" /></a>
-  <a href="https://pkg.go.dev/github.com/coderhaqi/rhui"><img src="https://img.shields.io/badge/Go-Reference-007d9c?style=flat-square&logo=go&logoColor=white" alt="Go Reference" /></a>
-  <a href="https://goreportcard.com/report/github.com/coderhaqi/rhui"><img src="https://img.shields.io/badge/Go%20Report-A%2B-brightgreen?style=flat-square" alt="Go Report Card" /></a>
+  <a href="https://pkg.go.dev/github.com/suserc0de/rhui"><img src="https://img.shields.io/badge/Go-Reference-007d9c?style=flat-square&logo=go&logoColor=white" alt="Go Reference" /></a>
+  <a href="https://goreportcard.com/report/github.com/suserc0de/rhui"><img src="https://img.shields.io/badge/Go%20Report-A%2B-brightgreen?style=flat-square" alt="Go Report Card" /></a>
   <a href="https://github.com/suserc0de/rhui/releases"><img src="https://img.shields.io/badge/Release-v1.0.0-blue?style=flat-square" alt="Latest Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
 </p>
@@ -36,7 +36,7 @@ With RHUI, you can organize your user interfaces into reusable components (`.rhu
 ## 📦 Installation
 
 ```bash
-go get github.com/coderhaqi/rhui
+go get github.com/suserc0de/rhui
 ```
 
 ---
@@ -112,7 +112,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 )
 
 func main() {
@@ -152,8 +152,8 @@ func main() {
 ```go
 import (
     "github.com/gin-gonic/gin"
-    "github.com/coderhaqi/rhui"
-    rhuigin "github.com/coderhaqi/rhui/adapter/gin"
+    "github.com/suserc0de/rhui"
+    rhuigin "github.com/suserc0de/rhui/adapter/gin"
 )
 
 func main() {
@@ -172,8 +172,8 @@ func main() {
 ```go
 import (
     "github.com/labstack/echo/v4"
-    "github.com/coderhaqi/rhui"
-    rhuiecho "github.com/coderhaqi/rhui/adapter/echo"
+    "github.com/suserc0de/rhui"
+    rhuiecho "github.com/suserc0de/rhui/adapter/echo"
 )
 
 func main() {
@@ -192,8 +192,8 @@ func main() {
 ```go
 import (
     "github.com/go-chi/chi/v5"
-    "github.com/coderhaqi/rhui"
-    rhuichi "github.com/coderhaqi/rhui/adapter/chi"
+    "github.com/suserc0de/rhui"
+    rhuichi "github.com/suserc0de/rhui/adapter/chi"
 )
 
 func main() {

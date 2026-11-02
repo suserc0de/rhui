@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/coderhaqi/rhui/parser"
+	"github.com/suserc0de/rhui/parser"
 )
 
 func TestLexerBasicTagAndText(t *testing.T) {

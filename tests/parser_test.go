@@ -3,8 +3,8 @@ package tests
 import (
 	"testing"
 
-	"github.com/coderhaqi/rhui/ast"
-	"github.com/coderhaqi/rhui/parser"
+	"github.com/suserc0de/rhui/ast"
+	"github.com/suserc0de/rhui/parser"
 )
 
 func TestParserBasicElement(t *testing.T) {

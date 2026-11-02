@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/coderhaqi/rhui/ast"
-	"github.com/coderhaqi/rhui/compiler"
+	"github.com/suserc0de/rhui/ast"
+	"github.com/suserc0de/rhui/compiler"
 )
 
 // Renderer renders AST nodes directly to an io.Writer.

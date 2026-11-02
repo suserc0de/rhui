@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/coderhaqi/rhui/ast"
+	"github.com/suserc0de/rhui/ast"
 )
 
 // Parser parses a stream of tokens into an AST.

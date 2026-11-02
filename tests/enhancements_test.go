@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/coderhaqi/rhui"
-	"github.com/coderhaqi/rhui/runtime"
+	"github.com/suserc0de/rhui"
+	"github.com/suserc0de/rhui/runtime"
 )
 
 //go:embed testdata/*

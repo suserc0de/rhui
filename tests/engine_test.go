@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 )
 
 func TestEngineEndToEnd(t *testing.T) {

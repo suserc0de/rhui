@@ -3,7 +3,7 @@ package echo
 import (
 	"io"
 
-	"github.com/coderhaqi/rhui"
+	"github.com/suserc0de/rhui"
 	"github.com/labstack/echo/v4"
 )
 

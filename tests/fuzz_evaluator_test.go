@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/coderhaqi/rhui/runtime"
+	"github.com/suserc0de/rhui/runtime"
 )
 
 // FuzzEvaluator verifies that arbitrary comparisons, logic, and expressions

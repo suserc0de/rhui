@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/coderhaqi/rhui/ast"
+	"github.com/suserc0de/rhui/ast"
 )
 
 // TemplateError represents a detailed error during tokenization, parsing, compilation, or rendering.

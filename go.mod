@@ -1,4 +1,4 @@
-module github.com/coderhaqi/rhui
+module github.com/suserc0de/rhui
 
 go 1.26.0
 

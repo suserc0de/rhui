@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/coderhaqi/rhui/runtime"
+	"github.com/suserc0de/rhui/runtime"
 )
 
 type TestUser struct {

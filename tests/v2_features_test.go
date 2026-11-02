@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/coderhaqi/rhui"
-	"github.com/coderhaqi/rhui/seo"
+	"github.com/suserc0de/rhui"
+	"github.com/suserc0de/rhui/seo"
 )
 
 func TestSlotFallbackContent(t *testing.T) {
