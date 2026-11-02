@@ -1,5 +1,5 @@
-// Navigation Data Source (Single Source of Truth)
-const DOCS_NAV_ITEMS = [
+// Navigation Data for Sidebar & Mobile Menu (Single Source of Truth)
+const DOCS_SIDEBAR_ITEMS = [
   {
     title: "Getting Started",
     path: "getting-started",
@@ -26,7 +26,7 @@ const DOCS_NAV_ITEMS = [
     icon: "layout-dashboard"
   },
   {
-    title: "Production Validation",
+    title: "Validation",
     path: "validation",
     icon: "shield-check"
   },
@@ -50,22 +50,35 @@ const DOCS_NAV_ITEMS = [
 // Helper to determine root-relative prefix based on current pathname
 function getBasePrefix() {
   const path = window.location.pathname;
-  // If we are at root or /index.html or /rhui/
-  if (path.endsWith("/rhui/") || path.endsWith("/rhui") || path === "/" || path.endsWith("/index.html") && !path.includes("/getting-started/") && !path.includes("/components/") && !path.includes("/syntax/") && !path.includes("/benchmarks/") && !path.includes("/showcase/") && !path.includes("/validation/") && !path.includes("/sse/") && !path.includes("/frameworks/") && !path.includes("/seo/")) {
+  if (
+    path.endsWith("/rhui/") ||
+    path.endsWith("/rhui") ||
+    path === "/" ||
+    (path.endsWith("/index.html") &&
+      !path.includes("/getting-started/") &&
+      !path.includes("/components/") &&
+      !path.includes("/syntax/") &&
+      !path.includes("/benchmarks/") &&
+      !path.includes("/showcase/") &&
+      !path.includes("/validation/") &&
+      !path.includes("/sse/") &&
+      !path.includes("/frameworks/") &&
+      !path.includes("/seo/"))
+  ) {
     return "./";
   }
   return "../";
 }
 
-// Render dynamic sidebar and header navigation across all pages
-function renderDynamicNavigation() {
+// Render dynamic sidebar (#sidebarNav) and mobile drawer (#mobileDrawerNav) from JSON list
+function renderDynamicSidebar() {
   const currentPath = window.location.pathname.replace(/\/index\.html$/, "").replace(/\/$/, "");
   const basePrefix = getBasePrefix();
 
-  // 1. Render Desktop Sidebar if #sidebarNav exists
+  // 1. Render Desktop Sidebar (#sidebarNav)
   const sidebarNav = document.getElementById("sidebarNav");
   if (sidebarNav) {
-    sidebarNav.innerHTML = DOCS_NAV_ITEMS.map(item => {
+    sidebarNav.innerHTML = DOCS_SIDEBAR_ITEMS.map(item => {
       const targetUrl = `${basePrefix}${item.path}/`;
       const isActive = currentPath.endsWith(`/${item.path}`);
 
@@ -86,24 +99,10 @@ function renderDynamicNavigation() {
     }).join("");
   }
 
-  // 2. Render Desktop Header Nav if #desktopHeaderNav exists
-  const desktopHeaderNav = document.getElementById("desktopHeaderNav");
-  if (desktopHeaderNav) {
-    desktopHeaderNav.innerHTML = DOCS_NAV_ITEMS.map(item => {
-      const targetUrl = `${basePrefix}${item.path}/`;
-      const isActive = currentPath.endsWith(`/${item.path}`);
-
-      if (isActive) {
-        return `<a href="${targetUrl}" class="text-brand-400 hover:text-brand-300 font-semibold transition-colors">${item.title}</a>`;
-      }
-      return `<a href="${targetUrl}" class="text-slate-400 hover:text-white transition-colors">${item.title}</a>`;
-    }).join("");
-  }
-
-  // 3. Render Mobile Drawer Nav if #mobileDrawerNav exists
+  // 2. Render Mobile Drawer (#mobileDrawerNav)
   const mobileDrawerNav = document.getElementById("mobileDrawerNav");
   if (mobileDrawerNav) {
-    mobileDrawerNav.innerHTML = DOCS_NAV_ITEMS.map(item => {
+    mobileDrawerNav.innerHTML = DOCS_SIDEBAR_ITEMS.map(item => {
       const targetUrl = `${basePrefix}${item.path}/`;
       const isActive = currentPath.endsWith(`/${item.path}`);
 
@@ -150,7 +149,7 @@ function toggleMobileNav() {
 
 // Initialize on DOM load
 document.addEventListener("DOMContentLoaded", () => {
-  renderDynamicNavigation();
+  renderDynamicSidebar();
 
   // Bind mobile menu button
   const mobileBtn = document.getElementById("mobileMenuBtn");
