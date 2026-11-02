@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>404 Page Not Found — RHUI Documentation</title>
   <meta name="robots" content="noindex, follow">
+
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -12,20 +14,32 @@
       theme: {
         extend: {
           colors: {
-            brand: { 500: '#6366f1', 600: '#4f46e5' },
-            dark: { 900: '#0b0f19', 950: '#030712' }
+            brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#1e1b4b' },
+            dark: { 800: '#111827', 850: '#0f172a', 900: '#0b0f19', 950: '#030712' }
           }
         }
       }
     }
   </script>
-  <link rel="stylesheet" href="/rhui/assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-dark-900 text-slate-200 antialiased min-h-screen flex flex-col justify-between items-center px-4">
-  <div class="h-16"></div>
+<body class="bg-dark-900 text-slate-200 antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col justify-between items-center px-4">
 
-  <div class="max-w-md w-full text-center space-y-6">
+  <!-- Header minimal -->
+  <header class="w-full max-w-7xl mx-auto h-16 flex items-center justify-between border-b border-slate-800 px-4 sm:px-6 lg:px-8">
+    <a href="./" class="flex items-center space-x-2.5 group">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+        R
+      </div>
+      <span class="font-bold text-lg text-white tracking-tight">RHUI</span>
+    </a>
+    <a href="https://github.com/suserc0de/rhui" target="_blank" rel="noopener noreferrer" class="p-2 text-slate-400 hover:text-white transition-colors">
+      <i data-lucide="github" class="w-5 h-5"></i>
+    </a>
+  </header>
+
+  <div class="max-w-md w-full text-center space-y-6 my-auto py-12">
     <div class="inline-flex p-4 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-400">
       <i data-lucide="compass" class="w-12 h-12"></i>
     </div>
@@ -36,21 +50,25 @@
     </p>
 
     <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
-      <a href="/rhui/" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-500/25">
+      <a href="./" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-500/25">
         <i data-lucide="home" class="w-4 h-4 mr-2"></i> Return Home
       </a>
-      <a href="/rhui/getting-started/" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition-all border border-slate-700">
+      <a href="./getting-started/" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition-all border border-slate-700">
         <i data-lucide="book-open" class="w-4 h-4 mr-2"></i> Read Docs
       </a>
     </div>
   </div>
 
-  <footer class="py-10 text-xs text-slate-500 text-center">
-    © 2026 RHUI Template Engine.
+  <footer class="w-full border-t border-slate-800 bg-dark-950 py-8 text-center text-xs text-slate-400 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p>© 2026 RHUI Template Engine. Open source under MIT License.</p>
+      <div class="flex items-center space-x-4">
+        <a href="https://github.com/suserc0de/rhui" class="hover:text-white">GitHub</a>
+        <a href="https://paypal.me/ridwanhaqi" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 font-medium">Support via PayPal</a>
+      </div>
+    </div>
   </footer>
 
-  <script>
-    lucide.createIcons();
-  </script>
+  <script src="./assets/js/docs.js"></script>
 </body>
 </html>

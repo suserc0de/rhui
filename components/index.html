@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth dark">
+<html lang="en" class="dark scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Components & Slots — RHUI Documentation</title>
   <meta name="description" content="Master reusable components, typed props, default fallback slots, and named slots in RHUI.">
+  <meta name="keywords" content="RHUI components, Go template components, slots Go, props Go, component template">
   <link rel="canonical" href="https://suserc0de.github.io/rhui/components/">
 
   <!-- OpenGraph -->
@@ -13,16 +14,16 @@
   <meta property="og:description" content="Master reusable components, typed props, default fallback slots, and named slots in RHUI.">
   <meta property="og:url" content="https://suserc0de.github.io/rhui/components/">
 
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          colors: { brand: { 500: '#3b82f6', 600: '#2563eb' } },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace']
+          colors: {
+            brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#1e1b4b' },
+            dark: { 800: '#111827', 850: '#0f172a', 900: '#0b0f19', 950: '#030712' }
           }
         }
       }
@@ -30,189 +31,316 @@
   </script>
   <link rel="stylesheet" href="../assets/css/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body class="bg-[#0b0f19] text-gray-200 font-sans antialiased selection:bg-blue-600 selection:text-white">
 
-  <!-- Header -->
-  <header class="sticky top-0 z-50 backdrop-blur-md bg-[#0b0f19]/80 border-b border-gray-800">
+  <!-- Schema.org Article Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Components and Slots in RHUI",
+    "description": "Comprehensive guide on building reusable server-side components and slot projections in Go.",
+    "author": { "@type": "Person", "name": "M Ridwan Haqi" },
+    "publisher": { "@type": "Organization", "name": "RHUI Engine" }
+  }
+  </script>
+</head>
+<body class="bg-dark-900 text-slate-200 antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-dark-900/80 border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <button onclick="toggleMobileNav()" class="md:hidden p-2 text-gray-400 hover:text-white" aria-label="Toggle Navigation">
-          <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
-        <a href="../" class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">RH</div>
-          <span class="text-lg font-bold text-white">RHUI Docs</span>
+        <a href="../" class="flex items-center space-x-2.5 group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            R
+          </div>
+          <span class="font-bold text-lg text-white tracking-tight">RHUI <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 ml-1">v1.0.0</span></span>
         </a>
       </div>
+
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a href="../getting-started/" class="text-slate-400 hover:text-white transition-colors">Getting Started</a>
+        <a href="../components/" class="text-brand-400 hover:text-brand-300 font-semibold transition-colors">Components</a>
+        <a href="../syntax/" class="text-slate-400 hover:text-white transition-colors">Syntax</a>
+        <a href="../sse/" class="text-slate-400 hover:text-white transition-colors">Realtime SSE</a>
+        <a href="../frameworks/" class="text-slate-400 hover:text-white transition-colors">Frameworks</a>
+        <a href="../seo/" class="text-slate-400 hover:text-white transition-colors">SEO & Meta</a>
+      </nav>
+
       <div class="flex items-center space-x-3">
-        <a href="https://github.com/suserc0de/rhui" target="_blank" class="p-2 text-gray-400 hover:text-white">
+        <a href="https://github.com/suserc0de/rhui" target="_blank" rel="noopener noreferrer" class="p-2 text-slate-400 hover:text-white transition-colors">
           <i data-lucide="github" class="w-5 h-5"></i>
         </a>
+        <button id="mobileMenuBtn" class="md:hidden p-2 text-slate-400 hover:text-white">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
       </div>
     </div>
   </header>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="hidden md:block w-64 flex-shrink-0 border-r border-gray-800/80 py-8 pr-6 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto text-sm">
-      <div class="space-y-8">
-        <div>
-          <h5 class="font-bold text-xs uppercase tracking-wider text-gray-400 mb-3">Overview</h5>
-          <ul class="space-y-2">
-            <li><a href="../" class="text-gray-400 hover:text-white transition">Home</a></li>
-            <li><a href="../getting-started/" class="text-gray-400 hover:text-white transition">Getting Started</a></li>
-          </ul>
-        </div>
-        <div>
-          <h5 class="font-bold text-xs uppercase tracking-wider text-gray-400 mb-3">Core Concepts</h5>
-          <ul class="space-y-2">
-            <li><a href="./" class="text-blue-400 font-semibold flex items-center space-x-1.5"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i><span>Components & Slots</span></a></li>
-            <li><a href="../syntax/" class="text-gray-400 hover:text-white transition">Syntax & Directives</a></li>
-            <li><a href="../sse/" class="text-gray-400 hover:text-white transition">Realtime SSE Streaming</a></li>
-          </ul>
-        </div>
-        <div>
-          <h5 class="font-bold text-xs uppercase tracking-wider text-gray-400 mb-3">Integrations & SEO</h5>
-          <ul class="space-y-2">
-            <li><a href="../frameworks/" class="text-gray-400 hover:text-white transition">Framework Adapters</a></li>
-            <li><a href="../seo/" class="text-gray-400 hover:text-white transition">SEO & Metadata</a></li>
-          </ul>
-        </div>
+  <!-- Mobile Drawer -->
+  <div id="mobileDrawer" class="hidden md:hidden fixed inset-0 z-40 bg-dark-950/90 backdrop-blur-lg pt-20 px-6">
+    <div class="flex flex-col space-y-4 text-base font-medium">
+      <a href="../getting-started/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Getting Started</a>
+      <a href="../components/" class="text-brand-400 font-semibold py-2 border-b border-slate-800">Components & Slots</a>
+      <a href="../syntax/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Syntax & Directives</a>
+      <a href="../sse/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Realtime SSE</a>
+      <a href="../frameworks/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Framework Adapters</a>
+      <a href="../seo/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">SEO & Sitemap</a>
+    </div>
+  </div>
+
+  <!-- Page Layout -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 grid grid-cols-1 md:grid-cols-4 gap-10">
+
+    <!-- Sidebar Navigation -->
+    <aside class="hidden md:block col-span-1 border-r border-slate-800/80 pr-6 space-y-6">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-400">Documentation</div>
+      <nav class="space-y-1 text-sm font-medium">
+        <a href="../getting-started/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="play-circle" class="w-4 h-4 mr-2.5"></i> Getting Started
+        </a>
+        <a href="../components/" class="flex items-center px-3 py-2 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20 font-semibold">
+          <i data-lucide="box" class="w-4 h-4 mr-2.5"></i> Components & Slots
+        </a>
+        <a href="../syntax/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="code" class="w-4 h-4 mr-2.5"></i> Syntax & Directives
+        </a>
+        <a href="../sse/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="radio" class="w-4 h-4 mr-2.5"></i> Realtime SSE
+        </a>
+        <a href="../frameworks/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="layers" class="w-4 h-4 mr-2.5"></i> Framework Adapters
+        </a>
+        <a href="../seo/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="search" class="w-4 h-4 mr-2.5"></i> SEO & Sitemap
+        </a>
+      </nav>
+
+      <div class="pt-6 border-t border-slate-800">
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">On This Page</div>
+        <ul class="text-xs space-y-2 text-slate-400">
+          <li><a href="#defining-components" class="hover:text-brand-400">Defining Components</a></li>
+          <li><a href="#props" class="hover:text-brand-400">Declaring Props & Defaults</a></li>
+          <li><a href="#invoking" class="hover:text-brand-400">Invoking with &lt;ui:Name&gt;</a></li>
+          <li><a href="#slots" class="hover:text-brand-400">Default & Fallback Slots</a></li>
+          <li><a href="#named-slots" class="hover:text-brand-400">Named Slots & Projection</a></li>
+          <li><a href="#attrs" class="hover:text-brand-400">Attribute Spreading (:attrs)</a></li>
+        </ul>
       </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 min-w-0 py-8 md:pl-10 lg:pr-10 prose-rhui">
-      <div class="flex items-center space-x-2 text-xs text-gray-500 mb-6">
-        <a href="../" class="hover:text-gray-400">Docs</a>
-        <span>/</span>
-        <span class="text-gray-300">Components</span>
-      </div>
-
-      <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">Components, Props & Slots</h1>
-      <p class="text-lg text-gray-400">
-        Components are the primary building blocks of RHUI. They encapsulate markup, styles, and logic into self-contained, reusable custom tags.
-      </p>
-
-      <h2>1. Defining a Component</h2>
-      <p>A component is declared inside a <code>.rhui</code> file using the <code>&lt;component name="..."&gt;</code> block:</p>
-
-      <div class="code-container rounded-xl overflow-hidden border border-gray-800 bg-[#0d1117] my-4 shadow-xl">
-        <div class="px-4 py-2 bg-gray-900/90 border-b border-gray-800 flex justify-between items-center text-xs text-gray-400">
-          <span>templates/components/Button.rhui</span>
-          <button onclick="copyCode(this)" class="hover:text-white"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+    <!-- Content Area -->
+    <main class="col-span-1 md:col-span-3 space-y-12 max-w-none">
+      
+      <!-- Page Title Header -->
+      <div class="border-b border-slate-800 pb-8">
+        <div class="flex items-center space-x-2 text-xs font-semibold text-brand-400 uppercase tracking-wider mb-2">
+          <span>Component System</span>
+          <span>•</span>
+          <span>Phase 2 & 5</span>
         </div>
-        <pre class="p-4 font-mono text-sm text-gray-300"><code><span class="tok-tag">&lt;component</span> <span class="tok-attr">name</span>=<span class="tok-string">"Button"</span><span class="tok-tag">&gt;</span>
-  <span class="tok-tag">&lt;props&gt;</span>
-    <span class="tok-tag">&lt;prop</span> <span class="tok-attr">name</span>=<span class="tok-string">"variant"</span> <span class="tok-attr">default</span>=<span class="tok-string">"primary"</span> <span class="tok-tag">/&gt;</span>
-    <span class="tok-tag">&lt;prop</span> <span class="tok-attr">name</span>=<span class="tok-string">"href"</span> <span class="tok-attr">default</span>=<span class="tok-string">""</span> <span class="tok-tag">/&gt;</span>
-  <span class="tok-tag">&lt;/props&gt;</span>
-
-  <span class="tok-tag">&lt;if</span> <span class="tok-attr">test</span>=<span class="tok-string">"href != ''"</span><span class="tok-tag">&gt;</span>
-    <span class="tok-tag">&lt;a</span> <span class="tok-attr">:href</span>=<span class="tok-string">"href"</span> <span class="tok-attr">class</span>=<span class="tok-string">"btn btn-<span class="tok-interp">{{ variant }}</span>"</span><span class="tok-tag">&gt;</span>
-      <span class="tok-tag">&lt;slot /&gt;</span>
-    <span class="tok-tag">&lt;/a&gt;</span>
-  <span class="tok-tag">&lt;/if&gt;</span>
-  <span class="tok-tag">&lt;else&gt;</span>
-    <span class="tok-tag">&lt;button</span> <span class="tok-attr">type</span>=<span class="tok-string">"button"</span> <span class="tok-attr">class</span>=<span class="tok-string">"btn btn-<span class="tok-interp">{{ variant }}</span>"</span><span class="tok-tag">&gt;</span>
-      <span class="tok-tag">&lt;slot /&gt;</span>
-    <span class="tok-tag">&lt;/button&gt;</span>
-  <span class="tok-tag">&lt;/else&gt;</span>
-<span class="tok-tag">&lt;/component&gt;</span></code></pre>
+        <h1 class="text-4xl font-extrabold text-white tracking-tight">Components & Slots</h1>
+        <p class="text-slate-400 text-lg mt-3">
+          Create declarative, encapsulated UI components with typed props, fallback slot content, multi-slot projection, and rest-attribute forwarding.
+        </p>
       </div>
 
-      <h2>2. Invoking Components</h2>
-      <p>Use the prefix <code>&lt;ui:ComponentName&gt;</code> to call your registered component from any page or other component:</p>
+      <!-- Section: Defining Components -->
+      <section id="defining-components" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="box" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Defining Components
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          In RHUI, a component is an encapsulated template wrapped in a <code class="text-brand-300 font-mono text-sm">&lt;component name="..."&gt;</code> root tag. Component files placed in your views directory are automatically registered.
+        </p>
 
-      <div class="code-container rounded-xl overflow-hidden border border-gray-800 bg-[#0d1117] my-4 shadow-xl">
-        <div class="px-4 py-2 bg-gray-900/90 border-b border-gray-800 flex justify-between items-center text-xs text-gray-400">
-          <span>templates/pages/index.rhui</span>
-          <button onclick="copyCode(this)" class="hover:text-white"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+        <div class="code-container">
+          <div class="code-header">
+            <span>views/components/Badge.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code>&lt;<span class="text-brand-400">component</span> name=<span class="text-emerald-300">"Badge"</span>&gt;
+  &lt;<span class="text-brand-400">props</span> variant=<span class="text-emerald-300">"info"</span> /&gt;
+
+  &lt;<span class="text-pink-400">span</span> class=<span class="text-emerald-300">"badge badge-{{ variant }} px-2 py-0.5 rounded text-xs"</span>&gt;
+    &lt;<span class="text-brand-400">slot</span> /&gt;
+  &lt;/<span class="text-pink-400">span</span>&gt;
+&lt;/<span class="text-brand-400">component</span>&gt;</code></pre>
         </div>
-        <pre class="p-4 font-mono text-sm text-gray-300"><code><span class="tok-comment">&lt;!-- Literal prop and link button --&gt;</span>
-<span class="tok-tag">&lt;ui:Button</span> <span class="tok-attr">variant</span>=<span class="tok-string">"secondary"</span> <span class="tok-attr">href</span>=<span class="tok-string">"/login"</span><span class="tok-tag">&gt;</span>
-  Log In
-<span class="tok-tag">&lt;/ui:Button&gt;</span>
+      </section>
 
-<span class="tok-comment">&lt;!-- Standard button --&gt;</span>
-<span class="tok-tag">&lt;ui:Button</span> <span class="tok-attr">variant</span>=<span class="tok-string">"primary"</span><span class="tok-tag">&gt;</span>
-  Save Changes
-<span class="tok-tag">&lt;/ui:Button&gt;</span></code></pre>
-      </div>
+      <!-- Section: Props & Defaults -->
+      <section id="props" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="sliders" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Declaring Props & Default Values
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          Declare acceptable parameters via <code class="text-brand-300 font-mono text-sm">&lt;props /&gt;</code>. Any attribute passed to <code class="text-brand-300 font-mono text-sm">&lt;props&gt;</code> serves as the fallback default when omitted by the consumer.
+        </p>
 
-      <h2>3. Fallback Content in Slots</h2>
-      <p>Provide default markup inside <code>&lt;slot&gt;</code> that renders automatically if the caller does not supply content:</p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>views/components/Alert.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code>&lt;<span class="text-brand-400">component</span> name=<span class="text-emerald-300">"Alert"</span>&gt;
+  &lt;<span class="text-brand-400">props</span> title=<span class="text-emerald-300">"Notification"</span> type=<span class="text-emerald-300">"info"</span> dismissible=<span class="text-emerald-300">"false"</span> /&gt;
 
-      <div class="code-container rounded-xl overflow-hidden border border-gray-800 bg-[#0d1117] my-4 shadow-xl">
-        <div class="px-4 py-2 bg-gray-900/90 border-b border-gray-800 flex justify-between items-center text-xs text-gray-400">
-          <span>templates/components/Modal.rhui</span>
-          <button onclick="copyCode(this)" class="hover:text-white"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+  &lt;<span class="text-pink-400">div</span> class=<span class="text-emerald-300">"alert alert-{{ type }} p-4 rounded-lg"</span>&gt;
+    &lt;<span class="text-pink-400">strong</span> class=<span class="text-emerald-300">"font-bold"</span>&gt;{{ title }}&lt;/<span class="text-pink-400">strong</span>&gt;
+    &lt;<span class="text-pink-400">div</span> class=<span class="text-emerald-300">"mt-1 text-sm"</span>&gt;&lt;<span class="text-brand-400">slot</span> /&gt;&lt;/<span class="text-pink-400">div</span>&gt;
+  &lt;/<span class="text-pink-400">div</span>&gt;
+&lt;/<span class="text-brand-400">component</span>&gt;</code></pre>
         </div>
-        <pre class="p-4 font-mono text-sm text-gray-300"><code><span class="tok-tag">&lt;component</span> <span class="tok-attr">name</span>=<span class="tok-string">"Modal"</span><span class="tok-tag">&gt;</span>
-  <span class="tok-tag">&lt;div</span> <span class="tok-attr">class</span>=<span class="tok-string">"modal"</span><span class="tok-tag">&gt;</span>
-    <span class="tok-tag">&lt;div</span> <span class="tok-attr">class</span>=<span class="tok-string">"modal-body"</span><span class="tok-tag">&gt;</span>
-      <span class="tok-tag">&lt;slot&gt;</span>
-        <span class="tok-tag">&lt;p</span> <span class="tok-attr">class</span>=<span class="tok-string">"text-muted"</span><span class="tok-tag">&gt;</span>No content provided.<span class="tok-tag">&lt;/p&gt;</span>
-      <span class="tok-tag">&lt;/slot&gt;</span>
-    <span class="tok-tag">&lt;/div&gt;</span>
-  <span class="tok-tag">&lt;/div&gt;</span>
-<span class="tok-tag">&lt;/component&gt;</span></code></pre>
-      </div>
+      </section>
 
-      <h2>4. Named Slots & Conditional `has_slot`</h2>
-      <p>Use named slots (<code>&lt;slot:name&gt;</code>) for complex UI compositions like cards, modals, or page headers:</p>
+      <!-- Section: Invoking -->
+      <section id="invoking" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="corner-down-right" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Invoking Components with &lt;ui:Name&gt;
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          Invoke any registered component in templates using the <code class="text-brand-300 font-mono text-sm">&lt;ui:ComponentName&gt;</code> custom tag syntax. Props can be static strings or dynamic evaluated expressions:
+        </p>
 
-      <div class="code-container rounded-xl overflow-hidden border border-gray-800 bg-[#0d1117] my-4 shadow-xl">
-        <div class="px-4 py-2 bg-gray-900/90 border-b border-gray-800 flex justify-between items-center text-xs text-gray-400">
-          <span>templates/components/Card.rhui</span>
-          <button onclick="copyCode(this)" class="hover:text-white"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+        <div class="code-container">
+          <div class="code-header">
+            <span>views/pages/home.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code><span class="text-slate-500">&lt;!-- Static props and inner content into default slot --&gt;</span>
+&lt;<span class="text-brand-400">ui:Badge</span> variant=<span class="text-emerald-300">"success"</span>&gt;Online&lt;/<span class="text-brand-400">ui:Badge</span>&gt;
+
+<span class="text-slate-500">&lt;!-- Dynamic evaluated props --&gt;</span>
+&lt;<span class="text-brand-400">ui:Alert</span> title=<span class="text-emerald-300">"System Warning"</span> type=<span class="text-emerald-300">"danger"</span>&gt;
+  Database latency is exceeding {{ latencyThreshold }}ms!
+&lt;/<span class="text-brand-400">ui:Alert</span>&gt;</code></pre>
         </div>
-        <pre class="p-4 font-mono text-sm text-gray-300"><code><span class="tok-tag">&lt;component</span> <span class="tok-attr">name</span>=<span class="tok-string">"Card"</span><span class="tok-tag">&gt;</span>
-  <span class="tok-tag">&lt;div</span> <span class="tok-attr">class</span>=<span class="tok-string">"card"</span><span class="tok-tag">&gt;</span>
-    <span class="tok-tag">&lt;div</span> <span class="tok-attr">class</span>=<span class="tok-string">"card-body"</span><span class="tok-tag">&gt;</span>
-      <span class="tok-tag">&lt;slot /&gt;</span>
-    <span class="tok-tag">&lt;/div&gt;</span>
+      </section>
 
-    <span class="tok-comment">&lt;!-- Only render footer wrapper if caller provided slot:footer --&gt;</span>
-    <span class="tok-tag">&lt;if</span> <span class="tok-attr">test</span>=<span class="tok-string">"has_slot('footer')"</span><span class="tok-tag">&gt;</span>
-      <span class="tok-tag">&lt;div</span> <span class="tok-attr">class</span>=<span class="tok-string">"card-footer"</span><span class="tok-tag">&gt;</span>
-        <span class="tok-tag">&lt;slot:footer /&gt;</span>
-      <span class="tok-tag">&lt;/div&gt;</span>
-    <span class="tok-tag">&lt;/if&gt;</span>
-  <span class="tok-tag">&lt;/div&gt;</span>
-<span class="tok-tag">&lt;/component&gt;</span></code></pre>
-      </div>
+      <!-- Section: Fallback Slots -->
+      <section id="slots" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="disc" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Default & Fallback Slots
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          A <code class="text-brand-300 font-mono text-sm">&lt;slot&gt;</code> tag can contain default fallback content that only renders when the caller passes no children:
+        </p>
 
-      <h2>5. Dynamic Attribute Spreading (`:attrs`)</h2>
-      <p>Forward arbitrary HTML attributes (such as <code>hx-get</code>, <code>id</code>, <code>data-*</code>, or <code>aria-*</code>) to an underlying element without listing them in <code>&lt;props&gt;</code>:</p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>views/components/Button.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code>&lt;<span class="text-brand-400">component</span> name=<span class="text-emerald-300">"Button"</span>&gt;
+  &lt;<span class="text-brand-400">props</span> type=<span class="text-emerald-300">"button"</span> /&gt;
 
-      <div class="code-container rounded-xl overflow-hidden border border-gray-800 bg-[#0d1117] my-4 shadow-xl">
-        <div class="px-4 py-2 bg-gray-900/90 border-b border-gray-800 flex justify-between items-center text-xs text-gray-400">
-          <span>Usage</span>
-          <button onclick="copyCode(this)" class="hover:text-white"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+  &lt;<span class="text-pink-400">button</span> type=<span class="text-emerald-300">"{{ type }}"</span> class=<span class="text-emerald-300">"btn px-4 py-2 rounded bg-brand-600 text-white font-medium"</span>&gt;
+    &lt;<span class="text-brand-400">slot</span>&gt;Click Here&lt;/<span class="text-brand-400">slot</span>&gt;
+  &lt;/<span class="text-pink-400">button</span>&gt;
+&lt;/<span class="text-brand-400">component</span>&gt;</code></pre>
         </div>
-        <pre class="p-4 font-mono text-sm text-gray-300"><code><span class="tok-comment">&lt;!-- Component Definition --&gt;</span>
-<span class="tok-tag">&lt;component</span> <span class="tok-attr">name</span>=<span class="tok-string">"CustomInput"</span><span class="tok-tag">&gt;</span>
-  <span class="tok-tag">&lt;input</span> <span class="tok-attr">class</span>=<span class="tok-string">"form-control"</span> <span class="tok-attr">:attrs</span>=<span class="tok-string">"extra_attrs"</span> <span class="tok-tag">/&gt;</span>
-<span class="tok-tag">&lt;/component&gt;</span>
+      </section>
 
-<span class="tok-comment">&lt;!-- Caller passes unmapped attributes automatically via extra_attrs --&gt;</span>
-<span class="tok-tag">&lt;ui:CustomInput</span> <span class="tok-attr">id</span>=<span class="tok-string">"user-email"</span> <span class="tok-attr">type</span>=<span class="tok-string">"email"</span> <span class="tok-attr">placeholder</span>=<span class="tok-string">"you@email.com"</span> <span class="tok-attr">required</span>=<span class="tok-string">"true"</span> <span class="tok-tag">/&gt;</span></code></pre>
-      </div>
+      <!-- Section: Named Slots -->
+      <section id="named-slots" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="split" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Named Slots & Multi-Zone Projection
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          Project content into distinct named target locations inside a component with <code class="text-brand-300 font-mono text-sm">&lt;slot:header&gt;</code> and <code class="text-brand-300 font-mono text-sm">&lt;slot:footer&gt;</code>:
+        </p>
 
-      <div class="mt-12 pt-8 border-t border-gray-800 flex justify-between items-center">
-        <a href="../getting-started/" class="text-gray-400 hover:text-white flex items-center space-x-2 text-sm">
-          <i data-lucide="arrow-left" class="w-4 h-4"></i>
-          <span>Previous: Getting Started</span>
+        <div class="code-container">
+          <div class="code-header">
+            <span>views/components/Modal.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code>&lt;<span class="text-brand-400">component</span> name=<span class="text-emerald-300">"Modal"</span>&gt;
+  &lt;<span class="text-pink-400">div</span> class=<span class="text-emerald-300">"modal-dialog"</span>&gt;
+    &lt;<span class="text-brand-400">if</span> condition=<span class="text-emerald-300">has_slot('header')</span>&gt;
+      &lt;<span class="text-pink-400">header</span> class=<span class="text-emerald-300">"modal-header"</span>&gt;&lt;<span class="text-brand-400">slot:header</span> /&gt;&lt;/<span class="text-pink-400">header</span>&gt;
+    &lt;/<span class="text-brand-400">if</span>&gt;
+
+    &lt;<span class="text-pink-400">div</span> class=<span class="text-emerald-300">"modal-body"</span>&gt;&lt;<span class="text-brand-400">slot</span> /&gt;&lt;/<span class="text-pink-400">div</span>&gt;
+
+    &lt;<span class="text-brand-400">if</span> condition=<span class="text-emerald-300">has_slot('footer')</span>&gt;
+      &lt;<span class="text-pink-400">footer</span> class=<span class="text-emerald-300">"modal-footer"</span>&gt;&lt;<span class="text-brand-400">slot:footer</span> /&gt;&lt;/<span class="text-pink-400">footer</span>&gt;
+    &lt;/<span class="text-brand-400">if</span>&gt;
+  &lt;/<span class="text-pink-400">div</span>&gt;
+&lt;/<span class="text-brand-400">component</span>&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Section: Attribute Spreading -->
+      <section id="attrs" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="share-2" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Attribute Spreading with :attrs
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          Forward undeclared HTML attributes (e.g. <code class="text-brand-300 font-mono text-sm">hx-post</code>, <code class="text-brand-300 font-mono text-sm">aria-*</code>, <code class="text-brand-300 font-mono text-sm">data-*</code>) directly into root or child tags using <code class="text-brand-300 font-mono text-sm">:attrs</code>:
+        </p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>views/components/Input.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code>&lt;<span class="text-brand-400">component</span> name=<span class="text-emerald-300">"Input"</span>&gt;
+  &lt;<span class="text-brand-400">props</span> label=<span class="text-emerald-300">""</span> /&gt;
+
+  &lt;<span class="text-pink-400">div</span> class=<span class="text-emerald-300">"form-group"</span>&gt;
+    &lt;<span class="text-brand-400">if</span> condition=<span class="text-emerald-300">label != ''</span>&gt;
+      &lt;<span class="text-pink-400">label</span> class=<span class="text-emerald-300">"block text-xs font-semibold mb-1"</span>&gt;{{ label }}&lt;/<span class="text-pink-400">label</span>&gt;
+    &lt;/<span class="text-brand-400">if</span>&gt;
+    &lt;<span class="text-pink-400">input</span> class=<span class="text-emerald-300">"border rounded px-3 py-2 bg-slate-900 w-full"</span> <span class="text-brand-400">:attrs</span> /&gt;
+  &lt;/<span class="text-pink-400">div</span>&gt;
+&lt;/<span class="text-brand-400">component</span>&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Next Steps & Pagination -->
+      <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <a href="../getting-started/" class="flex items-center text-slate-400 hover:text-white font-medium text-sm">
+          <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Getting Started
         </a>
-        <a href="../syntax/" class="text-blue-400 hover:text-blue-300 flex items-center space-x-2 text-sm font-semibold">
-          <span>Next: Syntax & Directives</span>
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        <a href="../syntax/" class="flex items-center text-brand-400 hover:text-brand-300 font-semibold text-sm">
+          Syntax & Directives <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
         </a>
       </div>
+
     </main>
   </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-dark-950 py-10 text-center text-xs text-slate-400 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p>© 2026 RHUI Template Engine. Open source under MIT License.</p>
+      <div class="flex items-center space-x-4">
+        <a href="https://github.com/suserc0de/rhui" class="hover:text-white">GitHub</a>
+        <a href="https://paypal.me/ridwanhaqi" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 font-medium">Support via PayPal</a>
+      </div>
+    </div>
+  </footer>
 
   <script src="../assets/js/docs.js"></script>
 </body>

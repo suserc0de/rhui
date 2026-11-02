@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RHUI — Component-Based SSR Template Engine for Go</title>
   <meta name="description" content="A component-based, high-performance Server-Side Rendering (SSR) template engine for Go with zero JavaScript build step, safe by default, and real-time SSE streaming.">
+  <meta name="keywords" content="RHUI, Go template engine, Go components, SSR Go, HTMX Go, Go web framework">
   <link rel="canonical" href="https://suserc0de.github.io/rhui/">
 
   <!-- OpenGraph / Social Meta -->
@@ -39,12 +40,8 @@
       theme: {
         extend: {
           colors: {
-            brand: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
-            dark: { bg: '#0b0f19', card: '#111827', border: '#1f2937' }
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace']
+            brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#1e1b4b' },
+            dark: { 800: '#111827', 850: '#0f172a', 900: '#0b0f19', 950: '#030712' }
           }
         }
       }
@@ -53,179 +50,237 @@
   <link rel="stylesheet" href="./assets/css/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-[#0b0f19] text-gray-200 font-sans antialiased selection:bg-blue-600 selection:text-white">
+<body class="bg-dark-900 text-slate-200 antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col">
 
-  <!-- Navigation Bar -->
-  <header class="sticky top-0 z-50 backdrop-blur-md bg-[#0b0f19]/80 border-b border-gray-800">
+  <!-- Sticky Header -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-dark-900/80 border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <a href="./" class="flex items-center space-x-3">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white font-extrabold text-lg">
-            RH
+        <a href="./" class="flex items-center space-x-2.5 group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            R
           </div>
-          <span class="text-xl font-bold text-white tracking-tight">RHUI</span>
-          <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">v1.0.0</span>
+          <span class="font-bold text-lg text-white tracking-tight">RHUI <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 ml-1">v1.0.0</span></span>
         </a>
       </div>
 
-      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-400">
-        <a href="./getting-started/" class="hover:text-white transition">Getting Started</a>
-        <a href="./components/" class="hover:text-white transition">Components</a>
-        <a href="./syntax/" class="hover:text-white transition">Syntax</a>
-        <a href="./sse/" class="hover:text-white transition">Realtime SSE</a>
-        <a href="./frameworks/" class="hover:text-white transition">Frameworks</a>
-        <a href="./seo/" class="hover:text-white transition">SEO</a>
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a href="./getting-started/" class="text-slate-400 hover:text-white transition-colors">Getting Started</a>
+        <a href="./components/" class="text-slate-400 hover:text-white transition-colors">Components</a>
+        <a href="./syntax/" class="text-slate-400 hover:text-white transition-colors">Syntax</a>
+        <a href="./sse/" class="text-slate-400 hover:text-white transition-colors">Realtime SSE</a>
+        <a href="./frameworks/" class="text-slate-400 hover:text-white transition-colors">Frameworks</a>
+        <a href="./seo/" class="text-slate-400 hover:text-white transition-colors">SEO & Meta</a>
       </nav>
 
       <div class="flex items-center space-x-3">
-        <a href="https://github.com/suserc0de/rhui" target="_blank" class="p-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-300 hover:text-white hover:border-gray-700 transition" aria-label="GitHub Repository">
+        <a href="https://github.com/suserc0de/rhui" target="_blank" rel="noopener noreferrer" class="p-2 text-slate-400 hover:text-white transition-colors">
           <i data-lucide="github" class="w-5 h-5"></i>
         </a>
-        <a href="./getting-started/" class="hidden sm:inline-flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-lg shadow-blue-600/30 transition">
-          <span>Explore Docs</span>
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </a>
+        <button id="mobileMenuBtn" class="md:hidden p-2 text-slate-400 hover:text-white">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
       </div>
     </div>
   </header>
 
+  <!-- Mobile Drawer -->
+  <div id="mobileDrawer" class="hidden md:hidden fixed inset-0 z-40 bg-dark-950/90 backdrop-blur-lg pt-20 px-6">
+    <div class="flex flex-col space-y-4 text-base font-medium">
+      <a href="./getting-started/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Getting Started</a>
+      <a href="./components/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Components & Slots</a>
+      <a href="./syntax/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Syntax & Directives</a>
+      <a href="./sse/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Realtime SSE</a>
+      <a href="./frameworks/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Framework Adapters</a>
+      <a href="./seo/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">SEO & Sitemap</a>
+    </div>
+  </div>
+
   <!-- Hero Section -->
-  <section class="relative pt-20 pb-28 overflow-hidden text-center">
-    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-      <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-gray-900/90 border border-gray-800 text-xs sm:text-sm text-gray-300 mb-8 shadow-inner">
-        <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>Pure Go Server-Side Rendering &bull; Zero Node.js Required</span>
+  <section class="relative overflow-hidden pt-16 pb-20 border-b border-slate-800/80">
+    <div class="absolute inset-0 bg-radial-gradient from-brand-500/10 via-transparent to-transparent opacity-50 pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-xs text-brand-300 font-medium mb-6">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-400"></i>
+        <span>Production Ready v1.0.0 is released</span>
       </div>
-
-      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight sm:leading-none">
-        Component-Driven UI <br class="hidden sm:block" />
-        <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">
-          Engineered for Go Backends
-        </span>
+      <h1 class="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
+        Next-Generation <br class="hidden sm:inline" />
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-indigo-300 to-purple-400">Component Template Engine</span> for Go
       </h1>
-
-      <p class="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-        Write reusable components with typed props, default values, and named slots in <code class="text-blue-400 bg-blue-950/40 px-1.5 py-0.5 rounded font-mono">.rhui</code> templates. Fast in-memory compilation without bundlers or JS toolchains.
+      <p class="mt-6 max-w-2xl mx-auto text-lg text-slate-400 leading-relaxed">
+        Declarative HTML-like components, default fallback slots, contextual auto-escaping, HTMX fragment rendering, and live SSE streaming with zero JavaScript runtime overhead.
       </p>
 
-      <!-- Action Buttons -->
-      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="./getting-started/" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-lg shadow-blue-500/25 transition flex items-center justify-center space-x-2">
+      <div class="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
+        <a href="./getting-started/" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-500/25 flex items-center justify-center space-x-2">
           <span>Get Started in 5 Minutes</span>
-          <i data-lucide="rocket" class="w-4 h-4"></i>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </a>
-        <a href="./components/" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gray-900 hover:bg-gray-800 border border-gray-800 text-gray-300 font-semibold transition flex items-center justify-center space-x-2">
-          <span>Component Guide</span>
-          <i data-lucide="layers" class="w-4 h-4"></i>
+        <a href="./components/" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition-all border border-slate-700 flex items-center justify-center space-x-2">
+          <i data-lucide="box" class="w-4 h-4 text-brand-400"></i>
+          <span>Explore Components</span>
         </a>
       </div>
 
-      <!-- Performance Stats -->
-      <div class="mt-16 pt-8 border-t border-gray-800/80 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
-        <div class="p-4 rounded-xl bg-gray-900/40 border border-gray-800/80">
-          <div class="text-blue-400 font-mono text-xl font-bold">~3,400 ns</div>
-          <div class="text-xs text-gray-400 mt-1">Per-render throughput</div>
-        </div>
-        <div class="p-4 rounded-xl bg-gray-900/40 border border-gray-800/80">
-          <div class="text-emerald-400 font-mono text-xl font-bold">747 B/op</div>
-          <div class="text-xs text-gray-400 mt-1">Ultra-low heap memory</div>
-        </div>
-        <div class="p-4 rounded-xl bg-gray-900/40 border border-gray-800/80">
-          <div class="text-purple-400 font-mono text-xl font-bold">Go 1.26+</div>
-          <div class="text-xs text-gray-400 mt-1">Target toolchain</div>
-        </div>
-        <div class="p-4 rounded-xl bg-gray-900/40 border border-gray-800/80">
-          <div class="text-amber-400 font-mono text-xl font-bold">0 JS Build</div>
-          <div class="text-xs text-gray-400 mt-1">No Webpack or npm</div>
+      <!-- Quick install snippet -->
+      <div class="mt-10 max-w-lg mx-auto">
+        <div class="code-container my-0">
+          <div class="code-header">
+            <span>Terminal</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-3.5 overflow-x-auto text-xs sm:text-sm font-mono text-emerald-300"><code>go get github.com/suserc0de/rhui</code></pre>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Documentation Modules Grid -->
-  <section class="py-16 bg-gray-950/60 border-t border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-3xl mx-auto mb-14">
-        <h2 class="text-xs uppercase font-bold tracking-widest text-blue-400 mb-2">Comprehensive Documentation</h2>
-        <h3 class="text-3xl font-extrabold text-white">Explore RHUI by Module</h3>
-        <p class="mt-2 text-gray-400 text-sm">Every single feature documented with complete code examples.</p>
+  <!-- Interactive Comparison Code Preview -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Familiar Component Syntax. Pure Go Power.</h2>
+      <p class="text-slate-400 text-sm mt-2">Write reusable UI components just like modern web frameworks, but executed purely server-side with zero build steps.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Card: Template Component -->
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-brand-400"></span>
+          <span>Component Definition (views/components/Card.rhui)</span>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Card.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-xs sm:text-sm font-mono text-slate-300"><code>&lt;<span class="text-brand-400">component</span> name=<span class="text-emerald-300">"Card"</span>&gt;
+  &lt;<span class="text-brand-400">props</span> title=<span class="text-emerald-300">"Default Title"</span> badge=<span class="text-emerald-300">""</span> /&gt;
+  
+  &lt;<span class="text-pink-400">div</span> class=<span class="text-emerald-300">"card border rounded-xl p-4 bg-slate-800"</span>&gt;
+    &lt;<span class="text-pink-400">div</span> class=<span class="text-emerald-300">"flex justify-between items-center mb-2"</span>&gt;
+      &lt;<span class="text-pink-400">h3</span> class=<span class="text-emerald-300">"font-bold text-white"</span>&gt;{{ title | upper }}&lt;/<span class="text-pink-400">h3</span>&gt;
+      &lt;<span class="text-brand-400">if</span> condition=<span class="text-emerald-300">badge != ''</span>&gt;
+        &lt;<span class="text-pink-400">span</span> class=<span class="text-emerald-300">"badge bg-brand-500/20 text-brand-300"</span>&gt;{{ badge }}&lt;/<span class="text-pink-400">span</span>&gt;
+      &lt;/<span class="text-brand-400">if</span>&gt;
+    &lt;/<span class="text-pink-400">div</span>&gt;
+
+    &lt;<span class="text-pink-400">div</span> class=<span class="text-emerald-300">"card-body text-slate-300"</span>&gt;
+      &lt;<span class="text-brand-400">slot</span>&gt;No description provided.&lt;/<span class="text-brand-400">slot</span>&gt;
+    &lt;/<span class="text-pink-400">div</span>&gt;
+  &lt;/<span class="text-pink-400">div</span>&gt;
+&lt;/<span class="text-brand-400">component</span>&gt;</code></pre>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Card 1 -->
-        <a href="./getting-started/" class="block p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-blue-500/50 hover:bg-gray-900 transition group">
-          <div class="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition">
-            <i data-lucide="book-open" class="w-6 h-6"></i>
+      <!-- Card: Invocation & Go Handler -->
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>Usage in Page & Go Handler (main.go)</span>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>views/home.rhui & main.go</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
           </div>
-          <h4 class="text-lg font-bold text-white group-hover:text-blue-400 transition">Getting Started</h4>
-          <p class="text-sm text-gray-400 mt-2">Installation, project structure best practices, and VS Code syntax configuration.</p>
-        </a>
+          <pre class="p-4 overflow-x-auto text-xs sm:text-sm font-mono text-slate-300"><code><span class="text-slate-500">&lt;!-- Invoking component in template --&gt;</span>
+&lt;<span class="text-brand-400">ui:Card</span> title=<span class="text-emerald-300">"Analytics Pro"</span> badge=<span class="text-emerald-300">"New"</span>&gt;
+  &lt;<span class="text-pink-400">p</span>&gt;Track all realtime server metrics with zero latency.&lt;/<span class="text-pink-400">p</span>&gt;
+&lt;/<span class="text-brand-400">ui:Card</span>&gt;
 
-        <!-- Card 2 -->
-        <a href="./components/" class="block p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-blue-500/50 hover:bg-gray-900 transition group">
-          <div class="w-12 h-12 rounded-xl bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition">
-            <i data-lucide="layers" class="w-6 h-6"></i>
-          </div>
-          <h4 class="text-lg font-bold text-white group-hover:text-emerald-400 transition">Components & Slots</h4>
-          <p class="text-sm text-gray-400 mt-2">Props contracts, fallback slots, named slots, has_slot condition, and attribute spreading.</p>
-        </a>
-
-        <!-- Card 3 -->
-        <a href="./syntax/" class="block p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-blue-500/50 hover:bg-gray-900 transition group">
-          <div class="w-12 h-12 rounded-xl bg-purple-600/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition">
-            <i data-lucide="code-2" class="w-6 h-6"></i>
-          </div>
-          <h4 class="text-lg font-bold text-white group-hover:text-purple-400 transition">Syntax & Directives</h4>
-          <p class="text-sm text-gray-400 mt-2">Conditionals, loops with metadata (@first, @even), and pipe formatting filters.</p>
-        </a>
-
-        <!-- Card 4 -->
-        <a href="./sse/" class="block p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-blue-500/50 hover:bg-gray-900 transition group">
-          <div class="w-12 h-12 rounded-xl bg-amber-600/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition">
-            <i data-lucide="radio" class="w-6 h-6"></i>
-          </div>
-          <h4 class="text-lg font-bold text-white group-hover:text-amber-400 transition">Realtime SSE Streaming</h4>
-          <p class="text-sm text-gray-400 mt-2">Server-Sent Events broker and live component streaming paired with HTMX.</p>
-        </a>
-
-        <!-- Card 5 -->
-        <a href="./frameworks/" class="block p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-blue-500/50 hover:bg-gray-900 transition group">
-          <div class="w-12 h-12 rounded-xl bg-cyan-600/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition">
-            <i data-lucide="cpu" class="w-6 h-6"></i>
-          </div>
-          <h4 class="text-lg font-bold text-white group-hover:text-cyan-400 transition">Framework Adapters</h4>
-          <p class="text-sm text-gray-400 mt-2">Idiomatic integration guides for Gin, Echo, Fiber, Chi, and standard net/http.</p>
-        </a>
-
-        <!-- Card 6 -->
-        <a href="./seo/" class="block p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-blue-500/50 hover:bg-gray-900 transition group">
-          <div class="w-12 h-12 rounded-xl bg-rose-600/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-4 group-hover:scale-110 transition">
-            <i data-lucide="globe" class="w-6 h-6"></i>
-          </div>
-          <h4 class="text-lg font-bold text-white group-hover:text-rose-400 transition">SEO & Metadata</h4>
-          <p class="text-sm text-gray-400 mt-2">Dynamic XML Sitemap generation and structured Schema.org JSON-LD helpers.</p>
-        </a>
+<span class="text-slate-500">// Render via Go standard HTTP handler</span>
+http.HandleFunc(<span class="text-emerald-300">"/"</span>, <span class="text-brand-400">func</span>(w http.ResponseWriter, r *http.Request) {
+    engine.Render(w, <span class="text-emerald-300">"home.rhui"</span>, map[<span class="text-brand-400">string</span>]<span class="text-brand-400">any</span>{
+        <span class="text-emerald-300">"User"</span>: <span class="text-emerald-300">"Haqi"</span>,
+    })
+})</code></pre>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Feature Grid -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-800/80">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition">
+        <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center mb-4">
+          <i data-lucide="box" class="w-5 h-5"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Modern Components</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Self-contained templates with typed props, default fallback slots, named slot projections, and attribute spreading.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Contextual Security</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Automated contextual escaping for HTML bodies, quoted attributes, and URLs preventing XSS injection without manual escaping flags.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4">
+          <i data-lucide="radio" class="w-5 h-5"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Realtime SSE Streaming</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Push live server-rendered component updates directly over Server-Sent Events to browser DOM elements using HTMX.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Turnkey Adapters</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Ready-to-use adapter renderers for Gin, Echo, Fiber, Chi, and standard net/http in a single line of setup.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
+          <i data-lucide="cpu" class="w-5 h-5"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Zero Allocation Pools</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Internal AST reuse, concurrent buffer recycling with sync.Pool, and high-throughput rendering under intense workloads.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center mb-4">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Built-in SEO Tools</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Built-in XML sitemap generation, dynamic robots.txt builder, and Schema.org JSON-LD structured data generators.
+        </p>
+      </div>
+
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="py-12 border-t border-gray-900 bg-[#070a10] text-gray-500 text-xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center space-x-2">
-        <span class="font-bold text-gray-300">RHUI</span>
-        <span>&bull;</span>
-        <span>Created by Raden Haqi (coderhaqi)</span>
-      </div>
+  <footer class="border-t border-slate-800 bg-dark-950 py-10 text-center text-xs text-slate-400 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p>© 2026 RHUI Template Engine. Open source under MIT License.</p>
       <div class="flex items-center space-x-4">
-        <a href="https://paypal.me/ridwanhaqi" target="_blank" class="hover:text-gray-300 flex items-center space-x-1">
-          <i data-lucide="heart" class="w-3.5 h-3.5 text-pink-500"></i>
-          <span>Donate via PayPal</span>
-        </a>
-        <span>&bull;</span>
-        <a href="https://github.com/suserc0de/rhui/blob/master/LICENSE" class="underline hover:text-gray-300">MIT License</a>
+        <a href="https://github.com/suserc0de/rhui" class="hover:text-white">GitHub</a>
+        <a href="https://paypal.me/ridwanhaqi" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 font-medium">Support via PayPal</a>
       </div>
     </div>
   </footer>

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth dark">
+<html lang="en" class="dark scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Syntax & Directives — RHUI Documentation</title>
   <meta name="description" content="Explore conditionals, loops with metadata, expression evaluation, and pipe filters in RHUI.">
+  <meta name="keywords" content="RHUI syntax, Go template directives, loops Go, filters Go, pipe operator">
   <link rel="canonical" href="https://suserc0de.github.io/rhui/syntax/">
 
   <!-- OpenGraph -->
@@ -13,16 +14,16 @@
   <meta property="og:description" content="Conditionals, loops with metadata, expression evaluation, and pipe filters in RHUI.">
   <meta property="og:url" content="https://suserc0de.github.io/rhui/syntax/">
 
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          colors: { brand: { 500: '#3b82f6', 600: '#2563eb' } },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace']
+          colors: {
+            brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#1e1b4b' },
+            dark: { 800: '#111827', 850: '#0f172a', 900: '#0b0f19', 950: '#030712' }
           }
         }
       }
@@ -30,182 +31,252 @@
   </script>
   <link rel="stylesheet" href="../assets/css/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body class="bg-[#0b0f19] text-gray-200 font-sans antialiased selection:bg-blue-600 selection:text-white">
 
-  <!-- Header -->
-  <header class="sticky top-0 z-50 backdrop-blur-md bg-[#0b0f19]/80 border-b border-gray-800">
+  <!-- Schema.org Article Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Syntax and Directives in RHUI",
+    "description": "Comprehensive guide on control flows, loops with loop metadata, and pipe filters in RHUI.",
+    "author": { "@type": "Person", "name": "M Ridwan Haqi" },
+    "publisher": { "@type": "Organization", "name": "RHUI Engine" }
+  }
+  </script>
+</head>
+<body class="bg-dark-900 text-slate-200 antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-dark-900/80 border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <button onclick="toggleMobileNav()" class="md:hidden p-2 text-gray-400 hover:text-white" aria-label="Toggle Navigation">
-          <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
-        <a href="../" class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">RH</div>
-          <span class="text-lg font-bold text-white">RHUI Docs</span>
+        <a href="../" class="flex items-center space-x-2.5 group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            R
+          </div>
+          <span class="font-bold text-lg text-white tracking-tight">RHUI <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 ml-1">v1.0.0</span></span>
         </a>
       </div>
+
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a href="../getting-started/" class="text-slate-400 hover:text-white transition-colors">Getting Started</a>
+        <a href="../components/" class="text-slate-400 hover:text-white transition-colors">Components</a>
+        <a href="../syntax/" class="text-brand-400 hover:text-brand-300 font-semibold transition-colors">Syntax</a>
+        <a href="../sse/" class="text-slate-400 hover:text-white transition-colors">Realtime SSE</a>
+        <a href="../frameworks/" class="text-slate-400 hover:text-white transition-colors">Frameworks</a>
+        <a href="../seo/" class="text-slate-400 hover:text-white transition-colors">SEO & Meta</a>
+      </nav>
+
       <div class="flex items-center space-x-3">
-        <a href="https://github.com/suserc0de/rhui" target="_blank" class="p-2 text-gray-400 hover:text-white">
+        <a href="https://github.com/suserc0de/rhui" target="_blank" rel="noopener noreferrer" class="p-2 text-slate-400 hover:text-white transition-colors">
           <i data-lucide="github" class="w-5 h-5"></i>
         </a>
+        <button id="mobileMenuBtn" class="md:hidden p-2 text-slate-400 hover:text-white">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
       </div>
     </div>
   </header>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="hidden md:block w-64 flex-shrink-0 border-r border-gray-800/80 py-8 pr-6 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto text-sm">
-      <div class="space-y-8">
-        <div>
-          <h5 class="font-bold text-xs uppercase tracking-wider text-gray-400 mb-3">Overview</h5>
-          <ul class="space-y-2">
-            <li><a href="../" class="text-gray-400 hover:text-white transition">Home</a></li>
-            <li><a href="../getting-started/" class="text-gray-400 hover:text-white transition">Getting Started</a></li>
-          </ul>
-        </div>
-        <div>
-          <h5 class="font-bold text-xs uppercase tracking-wider text-gray-400 mb-3">Core Concepts</h5>
-          <ul class="space-y-2">
-            <li><a href="../components/" class="text-gray-400 hover:text-white transition">Components & Slots</a></li>
-            <li><a href="./" class="text-blue-400 font-semibold flex items-center space-x-1.5"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i><span>Syntax & Directives</span></a></li>
-            <li><a href="../sse/" class="text-gray-400 hover:text-white transition">Realtime SSE Streaming</a></li>
-          </ul>
-        </div>
-        <div>
-          <h5 class="font-bold text-xs uppercase tracking-wider text-gray-400 mb-3">Integrations & SEO</h5>
-          <ul class="space-y-2">
-            <li><a href="../frameworks/" class="text-gray-400 hover:text-white transition">Framework Adapters</a></li>
-            <li><a href="../seo/" class="text-gray-400 hover:text-white transition">SEO & Metadata</a></li>
-          </ul>
-        </div>
+  <!-- Mobile Drawer -->
+  <div id="mobileDrawer" class="hidden md:hidden fixed inset-0 z-40 bg-dark-950/90 backdrop-blur-lg pt-20 px-6">
+    <div class="flex flex-col space-y-4 text-base font-medium">
+      <a href="../getting-started/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Getting Started</a>
+      <a href="../components/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Components & Slots</a>
+      <a href="../syntax/" class="text-brand-400 font-semibold py-2 border-b border-slate-800">Syntax & Directives</a>
+      <a href="../sse/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Realtime SSE</a>
+      <a href="../frameworks/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Framework Adapters</a>
+      <a href="../seo/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">SEO & Sitemap</a>
+    </div>
+  </div>
+
+  <!-- Page Layout -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 grid grid-cols-1 md:grid-cols-4 gap-10">
+
+    <!-- Sidebar Navigation -->
+    <aside class="hidden md:block col-span-1 border-r border-slate-800/80 pr-6 space-y-6">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-400">Documentation</div>
+      <nav class="space-y-1 text-sm font-medium">
+        <a href="../getting-started/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="play-circle" class="w-4 h-4 mr-2.5"></i> Getting Started
+        </a>
+        <a href="../components/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="box" class="w-4 h-4 mr-2.5"></i> Components & Slots
+        </a>
+        <a href="../syntax/" class="flex items-center px-3 py-2 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20 font-semibold">
+          <i data-lucide="code" class="w-4 h-4 mr-2.5"></i> Syntax & Directives
+        </a>
+        <a href="../sse/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="radio" class="w-4 h-4 mr-2.5"></i> Realtime SSE
+        </a>
+        <a href="../frameworks/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="layers" class="w-4 h-4 mr-2.5"></i> Framework Adapters
+        </a>
+        <a href="../seo/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="search" class="w-4 h-4 mr-2.5"></i> SEO & Sitemap
+        </a>
+      </nav>
+
+      <div class="pt-6 border-t border-slate-800">
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">On This Page</div>
+        <ul class="text-xs space-y-2 text-slate-400">
+          <li><a href="#interpolation" class="hover:text-brand-400">Expression Interpolation</a></li>
+          <li><a href="#conditionals" class="hover:text-brand-400">Conditionals (&lt;if&gt;/&lt;else&gt;)</a></li>
+          <li><a href="#loops" class="hover:text-brand-400">Loops & Metadata (@meta)</a></li>
+          <li><a href="#filters" class="hover:text-brand-400">Pipe Filters (|)</a></li>
+        </ul>
       </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 min-w-0 py-8 md:pl-10 lg:pr-10 prose-rhui">
-      <div class="flex items-center space-x-2 text-xs text-gray-500 mb-6">
-        <a href="../" class="hover:text-gray-400">Docs</a>
-        <span>/</span>
-        <span class="text-gray-300">Syntax</span>
-      </div>
-
-      <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">Syntax & Directives</h1>
-      <p class="text-lg text-gray-400">
-        RHUI provides intuitive declarative directives for conditionals, iteration loops, and piped formatters.
-      </p>
-
-      <h2>1. Conditionals (`&lt;if&gt;` and `&lt;else&gt;`)</h2>
-      <p>Render markup conditionally based on expressions evaluated in a safe sandbox:</p>
-
-      <div class="code-container rounded-xl overflow-hidden border border-gray-800 bg-[#0d1117] my-4 shadow-xl">
-        <div class="px-4 py-2 bg-gray-900/90 border-b border-gray-800 flex justify-between items-center text-xs text-gray-400">
-          <span>Example</span>
-          <button onclick="copyCode(this)" class="hover:text-white"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+    <!-- Content Area -->
+    <main class="col-span-1 md:col-span-3 space-y-12 max-w-none">
+      
+      <!-- Page Title Header -->
+      <div class="border-b border-slate-800 pb-8">
+        <div class="flex items-center space-x-2 text-xs font-semibold text-brand-400 uppercase tracking-wider mb-2">
+          <span>Control Flow & Filters</span>
+          <span>•</span>
+          <span>Phase 3 & 4</span>
         </div>
-        <pre class="p-4 font-mono text-sm text-gray-300"><code><span class="tok-tag">&lt;if</span> <span class="tok-attr">test</span>=<span class="tok-string">"len(Users) &gt; 0"</span><span class="tok-tag">&gt;</span>
-  <span class="tok-tag">&lt;p&gt;</span>Active Members: <span class="tok-interp">{{ len(Users) }}</span><span class="tok-tag">&lt;/p&gt;</span>
-<span class="tok-tag">&lt;/if&gt;</span>
-<span class="tok-tag">&lt;else&gt;</span>
-  <span class="tok-tag">&lt;p</span> <span class="tok-attr">class</span>=<span class="tok-string">"text-muted"</span><span class="tok-tag">&gt;</span>No users registered yet.<span class="tok-tag">&lt;/p&gt;</span>
-<span class="tok-tag">&lt;/else&gt;</span></code></pre>
+        <h1 class="text-4xl font-extrabold text-white tracking-tight">Syntax & Directives</h1>
+        <p class="text-slate-400 text-lg mt-3">
+          Intuitive HTML-like directives for branching logic, loop iteration with position metadata, and pipelined filter transformations.
+        </p>
       </div>
 
-      <h2>2. Loops with Iteration Metadata (`&lt;each&gt;`)</h2>
-      <p>Loop over slices or arrays with <code>&lt;each items="..." as="..."&gt;</code>. RHUI automatically injects local loop variables:</p>
+      <!-- Section: Interpolation -->
+      <section id="interpolation" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="braces" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Expression Interpolation
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          Values are interpolated with double curly braces <code class="text-brand-300 font-mono text-sm">{{ expression }}</code>. All expressions are sandboxed, preventing arbitrary reflection attacks:
+        </p>
 
-      <div class="overflow-x-auto my-4">
-        <table class="w-full text-left text-xs font-mono border-collapse">
-          <thead>
-            <tr class="border-b border-gray-800 text-gray-400">
-              <th class="py-2 px-3">Variable</th>
-              <th class="py-2 px-3">Type</th>
-              <th class="py-2 px-3 font-sans">Description</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-800/60">
-            <tr><td class="py-2 px-3 text-blue-400">@index</td><td class="py-2 px-3 text-gray-300">int</td><td class="py-2 px-3 text-gray-400 font-sans">0-based index</td></tr>
-            <tr><td class="py-2 px-3 text-blue-400">@count</td><td class="py-2 px-3 text-gray-300">int</td><td class="py-2 px-3 text-gray-400 font-sans">1-based counter</td></tr>
-            <tr><td class="py-2 px-3 text-blue-400">@first</td><td class="py-2 px-3 text-gray-300">bool</td><td class="py-2 px-3 text-gray-400 font-sans">True if first element</td></tr>
-            <tr><td class="py-2 px-3 text-blue-400">@last</td><td class="py-2 px-3 text-gray-300">bool</td><td class="py-2 px-3 text-gray-400 font-sans">True if last element</td></tr>
-            <tr><td class="py-2 px-3 text-blue-400">@even</td><td class="py-2 px-3 text-gray-300">bool</td><td class="py-2 px-3 text-gray-400 font-sans">True for even rows</td></tr>
-            <tr><td class="py-2 px-3 text-blue-400">@odd</td><td class="py-2 px-3 text-gray-300">bool</td><td class="py-2 px-3 text-gray-400 font-sans">True for odd rows</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="code-container rounded-xl overflow-hidden border border-gray-800 bg-[#0d1117] my-4 shadow-xl">
-        <div class="px-4 py-2 bg-gray-900/90 border-b border-gray-800 flex justify-between items-center text-xs text-gray-400">
-          <span>Loop Example</span>
-          <button onclick="copyCode(this)" class="hover:text-white"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+        <div class="code-container">
+          <div class="code-header">
+            <span>syntax_example.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code>&lt;<span class="text-pink-400">p</span>&gt;Hello, {{ user.Name }}!&lt;/<span class="text-pink-400">p</span>&gt;
+&lt;<span class="text-pink-400">p</span>&gt;Item Total: {{ quantity * price }}&lt;/<span class="text-pink-400">p</span>&gt;</code></pre>
         </div>
-        <pre class="p-4 font-mono text-sm text-gray-300"><code><span class="tok-tag">&lt;table&gt;</span>
-  <span class="tok-tag">&lt;tbody&gt;</span>
-    <span class="tok-tag">&lt;each</span> <span class="tok-attr">items</span>=<span class="tok-string">"Users"</span> <span class="tok-attr">as</span>=<span class="tok-string">"u"</span><span class="tok-tag">&gt;</span>
-      <span class="tok-tag">&lt;tr</span> <span class="tok-attr">:class</span>=<span class="tok-string">"@even ? 'bg-gray-100' : 'bg-white'"</span><span class="tok-tag">&gt;</span>
-        <span class="tok-tag">&lt;td&gt;</span><span class="tok-interp">{{ @count }}</span><span class="tok-tag">&lt;/td&gt;</span>
-        <span class="tok-tag">&lt;td&gt;</span><span class="tok-interp">{{ u.Name }}</span><span class="tok-tag">&lt;/td&gt;</span>
-        <span class="tok-tag">&lt;if</span> <span class="tok-attr">test</span>=<span class="tok-string">"@last"</span><span class="tok-tag">&gt;</span>
-          <span class="tok-tag">&lt;td&gt;&lt;span</span> <span class="tok-attr">class</span>=<span class="tok-string">"badge"</span><span class="tok-tag">&gt;</span>Latest<span class="tok-tag">&lt;/span&gt;&lt;/td&gt;</span>
-        <span class="tok-tag">&lt;/if&gt;</span>
-      <span class="tok-tag">&lt;/tr&gt;</span>
-    <span class="tok-tag">&lt;/each&gt;</span>
-  <span class="tok-tag">&lt;/tbody&gt;</span>
-<span class="tok-tag">&lt;/table&gt;</span></code></pre>
-      </div>
+      </section>
 
-      <h2>3. Pipe Filters (`{{ val | filter }}`)</h2>
-      <p>Transform and format values directly in template interpolations using the pipe operator <code>|</code>:</p>
+      <!-- Section: Conditionals -->
+      <section id="conditionals" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="git-branch" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Conditionals: &lt;if&gt;, &lt;else-if&gt;, and &lt;else&gt;
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          Branch rendering based on boolean conditions, comparisons (<code class="text-brand-300 font-mono text-sm">==</code>, <code class="text-brand-300 font-mono text-sm">!=</code>, <code class="text-brand-300 font-mono text-sm">&gt;</code>, <code class="text-brand-300 font-mono text-sm">&lt;=</code>), and logical operators (<code class="text-brand-300 font-mono text-sm">&amp;&amp;</code>, <code class="text-brand-300 font-mono text-sm">||</code>, <code class="text-brand-300 font-mono text-sm">!</code>):
+        </p>
 
-      <div class="code-container rounded-xl overflow-hidden border border-gray-800 bg-[#0d1117] my-4 shadow-xl">
-        <div class="px-4 py-2 bg-gray-900/90 border-b border-gray-800 flex justify-between items-center text-xs text-gray-400">
-          <span>Pipe Filters Example</span>
-          <button onclick="copyCode(this)" class="hover:text-white"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+        <div class="code-container">
+          <div class="code-header">
+            <span>conditional_example.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code>&lt;<span class="text-brand-400">if</span> condition=<span class="text-emerald-300">"user.IsAdmin"</span>&gt;
+  &lt;<span class="text-pink-400">span</span> class=<span class="text-emerald-300">"badge-admin"</span>&gt;Administrator&lt;/<span class="text-pink-400">span</span>&gt;
+&lt;<span class="text-brand-400">else-if</span> condition=<span class="text-emerald-300">"user.Role == 'moderator'"</span>&gt;
+  &lt;<span class="text-pink-400">span</span> class=<span class="text-emerald-300">"badge-mod"</span>&gt;Moderator&lt;/<span class="text-pink-400">span</span>&gt;
+&lt;<span class="text-brand-400">else</span> /&gt;
+  &lt;<span class="text-pink-400">span</span> class=<span class="text-emerald-300">"badge-user"</span>&gt;Standard Member&lt;/<span class="text-pink-400">span</span>&gt;
+&lt;/<span class="text-brand-400">if</span>&gt;</code></pre>
         </div>
-        <pre class="p-4 font-mono text-sm text-gray-300"><code><span class="tok-comment">&lt;!-- Text casing and trimming --&gt;</span>
-<span class="tok-tag">&lt;p&gt;</span><span class="tok-interp">{{ User.Name | trim | upper }}</span><span class="tok-tag">&lt;/p&gt;</span>
+      </section>
 
-<span class="tok-comment">&lt;!-- Currency formatting --&gt;</span>
-<span class="tok-tag">&lt;p&gt;</span>Price: <span class="tok-interp">{{ Product.Price | rupiah }}</span><span class="tok-tag">&lt;/p&gt;</span>
+      <!-- Section: Loops & Metadata -->
+      <section id="loops" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="repeat" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Loops & Position Metadata (@first, @last, @even, @odd)
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          Iterate over slices, arrays, or maps with <code class="text-brand-300 font-mono text-sm">&lt;each items="..." as="..."&gt;</code>. RHUI automatically injects contextual loop variables:
+        </p>
 
-<span class="tok-comment">&lt;!-- Date formatting --&gt;</span>
-<span class="tok-tag">&lt;p&gt;</span>Created: <span class="tok-interp">{{ Order.CreatedAt | dateFormat("02 Jan 2006") }}</span><span class="tok-tag">&lt;/p&gt;</span>
+        <div class="code-container">
+          <div class="code-header">
+            <span>loop_example.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code>&lt;<span class="text-pink-400">ul</span> class=<span class="text-emerald-300">"divide-y divide-slate-800"</span>&gt;
+  &lt;<span class="text-brand-400">each</span> items=<span class="text-emerald-300">"products"</span> as=<span class="text-emerald-300">"item"</span>&gt;
+    &lt;<span class="text-pink-400">li</span> class=<span class="text-emerald-300">"py-3 flex justify-between {{ @even ? 'bg-slate-800/40' : '' }}"</span>&gt;
+      &lt;<span class="text-pink-400">span</span>&gt;{{ @index + 1 }}. {{ item.Name }}&lt;/<span class="text-pink-400">span</span>&gt;
+      &lt;<span class="text-pink-400">span</span> class=<span class="text-emerald-300">"font-mono text-emerald-400"</span>&gt;{{ item.Price | rupiah }}&lt;/<span class="text-pink-400">span</span>&gt;
 
-<span class="tok-comment">&lt;!-- Fallback value --&gt;</span>
-<span class="tok-tag">&lt;p&gt;</span>Bio: <span class="tok-interp">{{ User.Bio | default("No bio available.") }}</span><span class="tok-tag">&lt;/p&gt;</span></code></pre>
-      </div>
-
-      <h2>4. Registering Custom Filters</h2>
-      <p>You can easily register custom Go functions as filters via <code>engine.RegisterFilter</code>:</p>
-
-      <div class="code-container rounded-xl overflow-hidden border border-gray-800 bg-[#0d1117] my-4 shadow-xl">
-        <div class="px-4 py-2 bg-gray-900/90 border-b border-gray-800 flex justify-between items-center text-xs text-gray-400">
-          <span>main.go</span>
-          <button onclick="copyCode(this)" class="hover:text-white"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+      &lt;<span class="text-brand-400">if</span> condition=<span class="text-emerald-300">"@last"</span>&gt;
+        &lt;<span class="text-pink-400">span</span> class=<span class="text-emerald-300">"text-xs text-slate-500"</span>&gt;(End of catalog)&lt;/<span class="text-pink-400">span</span>&gt;
+      &lt;/<span class="text-brand-400">if</span>&gt;
+    &lt;/<span class="text-pink-400">li</span>&gt;
+  &lt;/<span class="text-brand-400">each</span>&gt;
+&lt;/<span class="text-pink-400">ul</span>&gt;</code></pre>
         </div>
-        <pre class="p-4 font-mono text-sm text-gray-300"><code>engine.RegisterFilter("truncate", func(val any, maxLen int) string {
-    str := fmt.Sprint(val)
-    if len(str) > maxLen {
-        return str[:maxLen] + "..."
-    }
-    return str
-})
+      </section>
 
-// In template: {{ Article.Body | truncate(100) }}</code></pre>
-      </div>
+      <!-- Section: Pipe Filters -->
+      <section id="filters" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="filter" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Pipe Filters (|)
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          Transform data right inside template interpolations using the pipe operator <code class="text-brand-300 font-mono text-sm">|</code>. Filters can also be chained:
+        </p>
 
-      <div class="mt-12 pt-8 border-t border-gray-800 flex justify-between items-center">
-        <a href="../components/" class="text-gray-400 hover:text-white flex items-center space-x-2 text-sm">
-          <i data-lucide="arrow-left" class="w-4 h-4"></i>
-          <span>Previous: Components</span>
+        <div class="code-container">
+          <div class="code-header">
+            <span>filters_example.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code><span class="text-slate-500">&lt;!-- Case and formatting --&gt;</span>
+&lt;<span class="text-pink-400">h1</span>&gt;{{ title | upper }}&lt;/<span class="text-pink-400">h1</span>&gt;
+&lt;<span class="text-pink-400">p</span>&gt;{{ description | truncate(120) }}&lt;/<span class="text-pink-400">p</span>&gt;
+
+<span class="text-slate-500">&lt;!-- Currency & Localization (Indonesian Rupiah) --&gt;</span>
+&lt;<span class="text-pink-400">span</span>&gt;{{ totalAmount | rupiah }}&lt;/<span class="text-pink-400">span</span>&gt; <span class="text-slate-500">&lt;!-- Output: Rp 150.000 --&gt;</span>
+
+<span class="text-slate-500">&lt;!-- Date formatting --&gt;</span>
+&lt;<span class="text-pink-400">time</span>&gt;{{ createdAt | dateFormat('2006-01-02') }}&lt;/<span class="text-pink-400">time</span>&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Next Steps & Pagination -->
+      <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <a href="../components/" class="flex items-center text-slate-400 hover:text-white font-medium text-sm">
+          <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Components & Slots
         </a>
-        <a href="../sse/" class="text-blue-400 hover:text-blue-300 flex items-center space-x-2 text-sm font-semibold">
-          <span>Next: Realtime SSE</span>
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        <a href="../sse/" class="flex items-center text-brand-400 hover:text-brand-300 font-semibold text-sm">
+          Realtime SSE <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
         </a>
       </div>
+
     </main>
   </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-dark-950 py-10 text-center text-xs text-slate-400 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p>© 2026 RHUI Template Engine. Open source under MIT License.</p>
+      <div class="flex items-center space-x-4">
+        <a href="https://github.com/suserc0de/rhui" class="hover:text-white">GitHub</a>
+        <a href="https://paypal.me/ridwanhaqi" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 font-medium">Support via PayPal</a>
+      </div>
+    </div>
+  </footer>
 
   <script src="../assets/js/docs.js"></script>
 </body>

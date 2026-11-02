@@ -3,6 +3,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) {
     window.lucide.createIcons();
   }
+
+  // Bind mobile menu button if exists
+  const mobileBtn = document.getElementById("mobileMenuBtn");
+  const mobileDrawer = document.getElementById("mobileDrawer");
+  if (mobileBtn && mobileDrawer) {
+    mobileBtn.addEventListener("click", () => {
+      mobileDrawer.classList.toggle("hidden");
+    });
+  }
 });
 
 // Copy code block to clipboard
@@ -25,9 +34,9 @@ function copyCode(btn) {
   });
 }
 
-// Mobile sidebar drawer toggle
+// Fallback mobile drawer toggle helper
 function toggleMobileNav() {
-  const drawer = document.getElementById("mobile-drawer");
+  const drawer = document.getElementById("mobileDrawer");
   if (drawer) {
     drawer.classList.toggle("hidden");
   }
