@@ -1,0 +1,52 @@
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0b0f19; }
+::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #374151; }
+
+/* Code Syntax Colors */
+.tok-tag { color: #f43f5e; font-weight: 600; }
+.tok-attr { color: #38bdf8; }
+.tok-string { color: #a3e635; }
+.tok-keyword { color: #c084fc; font-weight: 600; }
+.tok-interp { color: #fbbf24; }
+.tok-comment { color: #64748b; font-style: italic; }
+.tok-func { color: #60a5fa; }
+.tok-pipe { color: #f472b6; font-weight: bold; }
+
+/* Prose & Typography Enhancements */
+.prose-rhui h2 {
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #1f2937;
+  scroll-margin-top: 5rem;
+}
+
+.prose-rhui h3 {
+  color: #f3f4f6;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  scroll-margin-top: 5rem;
+}
+
+.prose-rhui p {
+  color: #9ca3af;
+  line-height: 1.75;
+  margin-bottom: 1.25rem;
+}
+
+.prose-rhui code:not(pre code) {
+  background-color: rgba(30, 58, 138, 0.3);
+  color: #60a5fa;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.375rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}

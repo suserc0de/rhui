@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://suserc0de.github.io/rhui/sitemap.xml

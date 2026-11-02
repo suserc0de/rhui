@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realtime SSE Streaming & Live Components — RHUI Documentation</title>
+  <meta name="description" content="Learn how to stream live UI components over Server-Sent Events (SSE) using RHUI and HTMX without WebSockets or heavy client runtimes.">
+  <meta name="keywords" content="RHUI SSE, Server-Sent Events Go, HTMX SSE, Go realtime UI, live components Go">
+  <meta property="og:title" content="Realtime SSE Streaming & Live Components — RHUI">
+  <meta property="og:description" content="Stream reactive UI updates directly from Go channels to browser elements with zero JavaScript build steps.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://suserc0de.github.io/rhui/sse/">
+  <link rel="canonical" href="https://suserc0de.github.io/rhui/sse/">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#1e1b4b' },
+            dark: { 800: '#111827', 850: '#0f172a', 900: '#0b0f19', 950: '#030712' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Schema.org Article Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Realtime SSE Streaming & Live Components in RHUI",
+    "description": "Comprehensive tutorial on building reactive server-driven user interfaces using Go SSE and HTMX.",
+    "author": { "@type": "Person", "name": "M Ridwan Haqi" },
+    "publisher": { "@type": "Organization", "name": "RHUI Engine" }
+  }
+  </script>
+</head>
+<body class="bg-dark-900 text-slate-200 antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-dark-900/80 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <a href="../" class="flex items-center space-x-2.5 group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            R
+          </div>
+          <span class="font-bold text-lg text-white tracking-tight">RHUI <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 ml-1">v1.0.0</span></span>
+        </a>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a href="../getting-started/" class="text-slate-400 hover:text-white transition-colors">Getting Started</a>
+        <a href="../components/" class="text-slate-400 hover:text-white transition-colors">Components</a>
+        <a href="../syntax/" class="text-slate-400 hover:text-white transition-colors">Syntax</a>
+        <a href="../sse/" class="text-brand-400 hover:text-brand-300 font-semibold transition-colors">Realtime SSE</a>
+        <a href="../frameworks/" class="text-slate-400 hover:text-white transition-colors">Frameworks</a>
+        <a href="../seo/" class="text-slate-400 hover:text-white transition-colors">SEO & Meta</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <a href="https://github.com/suserc0de/rhui" target="_blank" rel="noopener noreferrer" class="p-2 text-slate-400 hover:text-white transition-colors">
+          <i data-lucide="github" class="w-5 h-5"></i>
+        </a>
+        <button id="mobileMenuBtn" class="md:hidden p-2 text-slate-400 hover:text-white">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileDrawer" class="hidden md:hidden fixed inset-0 z-40 bg-dark-950/90 backdrop-blur-lg pt-20 px-6">
+    <div class="flex flex-col space-y-4 text-base font-medium">
+      <a href="../getting-started/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Getting Started</a>
+      <a href="../components/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Components & Slots</a>
+      <a href="../syntax/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Syntax & Directives</a>
+      <a href="../sse/" class="text-brand-400 font-semibold py-2 border-b border-slate-800">Realtime SSE</a>
+      <a href="../frameworks/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Framework Adapters</a>
+      <a href="../seo/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">SEO & Sitemap</a>
+    </div>
+  </div>
+
+  <!-- Page Layout -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 grid grid-cols-1 md:grid-cols-4 gap-10">
+
+    <!-- Sidebar Navigation -->
+    <aside class="hidden md:block col-span-1 border-r border-slate-800/80 pr-6 space-y-6">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-400">Documentation</div>
+      <nav class="space-y-1 text-sm font-medium">
+        <a href="../getting-started/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="play-circle" class="w-4 h-4 mr-2.5"></i> Getting Started
+        </a>
+        <a href="../components/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="box" class="w-4 h-4 mr-2.5"></i> Components & Slots
+        </a>
+        <a href="../syntax/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="code" class="w-4 h-4 mr-2.5"></i> Syntax & Directives
+        </a>
+        <a href="../sse/" class="flex items-center px-3 py-2 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20 font-semibold">
+          <i data-lucide="radio" class="w-4 h-4 mr-2.5"></i> Realtime SSE
+        </a>
+        <a href="../frameworks/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="layers" class="w-4 h-4 mr-2.5"></i> Framework Adapters
+        </a>
+        <a href="../seo/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="search" class="w-4 h-4 mr-2.5"></i> SEO & Sitemap
+        </a>
+      </nav>
+
+      <div class="pt-6 border-t border-slate-800">
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">On This Page</div>
+        <ul class="text-xs space-y-2 text-slate-400">
+          <li><a href="#why-sse" class="hover:text-brand-400">Why SSE over WebSockets?</a></li>
+          <li><a href="#broker-setup" class="hover:text-brand-400">Creating the SSE Broker</a></li>
+          <li><a href="#broadcast-component" class="hover:text-brand-400">BroadcastComponent API</a></li>
+          <li><a href="#htmx-integration" class="hover:text-brand-400">HTMX Client Integration</a></li>
+          <li><a href="#full-example" class="hover:text-brand-400">Full Realtime Example</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="col-span-1 md:col-span-3 space-y-12 max-w-none">
+      
+      <!-- Page Title Header -->
+      <div class="border-b border-slate-800 pb-8">
+        <div class="flex items-center space-x-2 text-xs font-semibold text-brand-400 uppercase tracking-wider mb-2">
+          <span>Realtime Architecture</span>
+          <span>•</span>
+          <span>Phase 9</span>
+        </div>
+        <h1 class="text-4xl font-extrabold text-white tracking-tight">Realtime SSE Streaming & Live Components</h1>
+        <p class="text-slate-400 text-lg mt-3">
+          Push live server-rendered HTML component diffs directly to client browsers over standard HTTP/2 Server-Sent Events with automated keep-alives and HTMX compatibility.
+        </p>
+      </div>
+
+      <!-- Section: Why SSE -->
+      <section id="why-sse" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="zap" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Why Server-Sent Events (SSE)?
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          Traditional Single Page Applications (SPAs) rely on WebSockets for real-time reactivity, requiring separate connection handshakes, stateful connection brokers, and client-side JSON reconciliation.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/60">
+            <div class="font-semibold text-white flex items-center mb-1">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 mr-2"></i>
+              RHUI + SSE Advantages
+            </div>
+            <ul class="text-sm text-slate-400 space-y-1.5 list-disc list-inside">
+              <li>Built-in automatic reconnection handled by browsers.</li>
+              <li>Traverses corporate proxies and firewalls without custom protocols.</li>
+              <li>HTTP/2 multiplexing allows hundreds of streams on one TCP link.</li>
+              <li>Renders directly via RHUI's zero-alloc component buffer pool.</li>
+            </ul>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/60">
+            <div class="font-semibold text-white flex items-center mb-1">
+              <i data-lucide="x-circle" class="w-4 h-4 text-rose-400 mr-2"></i>
+              WebSocket Pitfalls
+            </div>
+            <ul class="text-sm text-slate-400 space-y-1.5 list-disc list-inside">
+              <li>Complex ping/pong heartbeats and custom reconnect loops.</li>
+              <li>Often blocked by aggressive corporate network firewalls.</li>
+              <li>Requires sending JSON payloads that must be parsed on clients.</li>
+              <li>Heavy JavaScript bundles and hydration overhead.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Broker Setup -->
+      <section id="broker-setup" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="server" class="w-6 h-6 mr-2 text-brand-400"></i>
+          Creating the SSE Broker
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          RHUI provides a production-ready, concurrent SSE broker in <code class="text-brand-300 font-mono text-sm">github.com/suserc0de/rhui/pkg/sse</code> that manages subscriber lifecycles, non-blocking broadcasts, and heartbeat pings.
+        </p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>main.go</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code><span class="text-brand-400">package</span> main
+
+<span class="text-brand-400">import</span> (
+    <span class="text-emerald-300">"net/http"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui/pkg/sse"</span>
+)
+
+<span class="text-brand-400">func</span> main() {
+    engine := rhui.NewEngine(rhui.EngineOptions{
+        ViewsDir: <span class="text-emerald-300">"./views"</span>,
+    })
+
+    <span class="text-slate-500">// Initialize SSE broker</span>
+    broker := sse.NewBroker(engine)
+
+    <span class="text-slate-500">// Stream endpoint</span>
+    http.HandleFunc(<span class="text-emerald-300">"/events"</span>, broker.Connect)
+
+    http.ListenAndServe(<span class="text-emerald-300">":8080"</span>, nil)
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section: BroadcastComponent API -->
+      <section id="broadcast-component" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="radio" class="w-6 h-6 mr-2 text-brand-400"></i>
+          BroadcastComponent API
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          To send an updated component to all connected clients, call <code class="text-brand-300 font-mono text-sm">broker.BroadcastComponent()</code>. RHUI compiles the template fragment, renders it with provided data, and sends the payload with the designated event name.
+        </p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>handler.go</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code><span class="text-slate-500">// Push a notification component update to all clients listening on "NewNotification"</span>
+err := broker.BroadcastComponent(
+    <span class="text-emerald-300">"NewNotification"</span>,       <span class="text-slate-500">// Event name</span>
+    <span class="text-emerald-300">"components/Notification"</span>, <span class="text-slate-500">// Component path</span>
+    map[<span class="text-brand-400">string</span>]<span class="text-brand-400">any</span>{
+        <span class="text-emerald-300">"Title"</span>:   <span class="text-emerald-300">"Order #1042 Paid"</span>,
+        <span class="text-emerald-300">"Message"</span>: <span class="text-emerald-300">"Total: Rp 350.000 via QRIS"</span>,
+        <span class="text-emerald-300">"Status"</span>:  <span class="text-emerald-300">"success"</span>,
+    },
+)
+<span class="text-brand-400">if</span> err != nil {
+    log.Printf(<span class="text-emerald-300">"Failed to broadcast component: %v"</span>, err)
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section: HTMX Integration -->
+      <section id="htmx-integration" class="space-y-4">
+        <h2 class="text-2xl font-bold text-white flex items-center">
+          <i data-lucide="layers" class="w-6 h-6 mr-2 text-brand-400"></i>
+          HTMX Client Integration
+        </h2>
+        <p class="text-slate-300 leading-relaxed">
+          With HTMX and the <code class="text-brand-300 font-mono text-sm">sse</code> extension, your frontend listens for backend events and swaps the rendered HTML directly into the DOM with zero handwritten JavaScript.
+        </p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>views/dashboard.rhui</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code>&lt;!-- Include HTMX and SSE extension --&gt;
+&lt;script src="https://unpkg.com/htmx.org@1.9.10"&gt;&lt;/script&gt;
+&lt;script src="https://unpkg.com/htmx.org@1.9.10/dist/ext/sse.js"&gt;&lt;/script&gt;
+
+&lt;!-- Connect to the SSE endpoint and swap live notifications --&gt;
+&lt;div hx-ext="sse" sse-connect="/events"&gt;
+  &lt;h2 class="text-lg font-bold"&gt;Live Activity Feed&lt;/h2&gt;
+
+  &lt;div sse-swap="NewNotification" hx-swap="afterbegin" id="feed"&gt;
+    &lt;p class="text-slate-500"&gt;Waiting for incoming activities...&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Next Steps & Pagination -->
+      <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <a href="../syntax/" class="flex items-center text-slate-400 hover:text-white font-medium text-sm">
+          <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Syntax & Directives
+        </a>
+        <a href="../frameworks/" class="flex items-center text-brand-400 hover:text-brand-300 font-semibold text-sm">
+          Framework Adapters <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+        </a>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-dark-950 py-10 text-center text-xs text-slate-400 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p>© 2026 RHUI Template Engine. Open source under MIT License.</p>
+      <div class="flex items-center space-x-4">
+        <a href="https://github.com/suserc0de/rhui" class="hover:text-white">GitHub</a>
+        <a href="https://paypal.me/ridwanhaqi" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 font-medium">Support via PayPal</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/docs.js"></script>
+</body>
+</html>

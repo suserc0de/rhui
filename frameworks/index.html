@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Framework Adapters — Gin, Echo, Fiber, Chi & net/http — RHUI</title>
+  <meta name="description" content="Plug RHUI component engine into your preferred Go web framework: Gin, Echo, Fiber, Chi, or standard net/http in one line of code.">
+  <meta name="keywords" content="RHUI Gin, RHUI Echo, RHUI Fiber, RHUI Chi, Go web framework template engine">
+  <meta property="og:title" content="Framework Adapters — RHUI Documentation">
+  <meta property="og:description" content="Turnkey adapters for Gin, Echo, Fiber, Chi, and net/http with zero boilerplate.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://suserc0de.github.io/rhui/frameworks/">
+  <link rel="canonical" href="https://suserc0de.github.io/rhui/frameworks/">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#1e1b4b' },
+            dark: { 800: '#111827', 850: '#0f172a', 900: '#0b0f19', 950: '#030712' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Schema.org Article Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Go Framework Adapters for RHUI",
+    "description": "Integration guide for Gin, Echo, Fiber, Chi, and standard net/http with RHUI component template engine.",
+    "author": { "@type": "Person", "name": "M Ridwan Haqi" },
+    "publisher": { "@type": "Organization", "name": "RHUI Engine" }
+  }
+  </script>
+</head>
+<body class="bg-dark-900 text-slate-200 antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-dark-900/80 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <a href="../" class="flex items-center space-x-2.5 group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            R
+          </div>
+          <span class="font-bold text-lg text-white tracking-tight">RHUI <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 ml-1">v1.0.0</span></span>
+        </a>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a href="../getting-started/" class="text-slate-400 hover:text-white transition-colors">Getting Started</a>
+        <a href="../components/" class="text-slate-400 hover:text-white transition-colors">Components</a>
+        <a href="../syntax/" class="text-slate-400 hover:text-white transition-colors">Syntax</a>
+        <a href="../sse/" class="text-slate-400 hover:text-white transition-colors">Realtime SSE</a>
+        <a href="../frameworks/" class="text-brand-400 hover:text-brand-300 font-semibold transition-colors">Frameworks</a>
+        <a href="../seo/" class="text-slate-400 hover:text-white transition-colors">SEO & Meta</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <a href="https://github.com/suserc0de/rhui" target="_blank" rel="noopener noreferrer" class="p-2 text-slate-400 hover:text-white transition-colors">
+          <i data-lucide="github" class="w-5 h-5"></i>
+        </a>
+        <button id="mobileMenuBtn" class="md:hidden p-2 text-slate-400 hover:text-white">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileDrawer" class="hidden md:hidden fixed inset-0 z-40 bg-dark-950/90 backdrop-blur-lg pt-20 px-6">
+    <div class="flex flex-col space-y-4 text-base font-medium">
+      <a href="../getting-started/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Getting Started</a>
+      <a href="../components/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Components & Slots</a>
+      <a href="../syntax/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Syntax & Directives</a>
+      <a href="../sse/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Realtime SSE</a>
+      <a href="../frameworks/" class="text-brand-400 font-semibold py-2 border-b border-slate-800">Framework Adapters</a>
+      <a href="../seo/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">SEO & Sitemap</a>
+    </div>
+  </div>
+
+  <!-- Page Layout -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 grid grid-cols-1 md:grid-cols-4 gap-10">
+
+    <!-- Sidebar Navigation -->
+    <aside class="hidden md:block col-span-1 border-r border-slate-800/80 pr-6 space-y-6">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-400">Documentation</div>
+      <nav class="space-y-1 text-sm font-medium">
+        <a href="../getting-started/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="play-circle" class="w-4 h-4 mr-2.5"></i> Getting Started
+        </a>
+        <a href="../components/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="box" class="w-4 h-4 mr-2.5"></i> Components & Slots
+        </a>
+        <a href="../syntax/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="code" class="w-4 h-4 mr-2.5"></i> Syntax & Directives
+        </a>
+        <a href="../sse/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="radio" class="w-4 h-4 mr-2.5"></i> Realtime SSE
+        </a>
+        <a href="../frameworks/" class="flex items-center px-3 py-2 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20 font-semibold">
+          <i data-lucide="layers" class="w-4 h-4 mr-2.5"></i> Framework Adapters
+        </a>
+        <a href="../seo/" class="flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors">
+          <i data-lucide="search" class="w-4 h-4 mr-2.5"></i> SEO & Sitemap
+        </a>
+      </nav>
+
+      <div class="pt-6 border-t border-slate-800">
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">On This Page</div>
+        <ul class="text-xs space-y-2 text-slate-400">
+          <li><a href="#gin" class="hover:text-brand-400">Gin Integration</a></li>
+          <li><a href="#echo" class="hover:text-brand-400">Echo Integration</a></li>
+          <li><a href="#fiber" class="hover:text-brand-400">Fiber Integration</a></li>
+          <li><a href="#chi" class="hover:text-brand-400">Chi Integration</a></li>
+          <li><a href="#nethttp" class="hover:text-brand-400">Standard net/http</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="col-span-1 md:col-span-3 space-y-12 max-w-none">
+      
+      <!-- Page Title Header -->
+      <div class="border-b border-slate-800 pb-8">
+        <div class="flex items-center space-x-2 text-xs font-semibold text-brand-400 uppercase tracking-wider mb-2">
+          <span>Ecosystem & Interop</span>
+          <span>•</span>
+          <span>Phase 8</span>
+        </div>
+        <h1 class="text-4xl font-extrabold text-white tracking-tight">Multi-Framework Adapters</h1>
+        <p class="text-slate-400 text-lg mt-3">
+          RHUI provides first-class renderer adapters that plug directly into existing Go web router APIs without altering your application's handler architecture.
+        </p>
+      </div>
+
+      <!-- Section: Gin -->
+      <section id="gin" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-bold text-white flex items-center">
+            <span class="w-3 h-3 rounded-full bg-cyan-400 mr-3"></span>
+            Gin Adapter
+          </h2>
+          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">pkg/adapter/rhuigin</span>
+        </div>
+        <p class="text-slate-300 leading-relaxed">
+          The Gin adapter implements <code class="text-brand-300 font-mono text-sm">render.HTMLRender</code>. Assign it to <code class="text-brand-300 font-mono text-sm">router.HTMLRender</code> and invoke <code class="text-brand-300 font-mono text-sm">c.HTML(status, templateName, data)</code>.
+        </p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>gin_example.go</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code><span class="text-brand-400">package</span> main
+
+<span class="text-brand-400">import</span> (
+    <span class="text-emerald-300">"github.com/gin-gonic/gin"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui/pkg/adapter/rhuigin"</span>
+)
+
+<span class="text-brand-400">func</span> main() {
+    engine := rhui.NewEngine(rhui.EngineOptions{ViewsDir: <span class="text-emerald-300">"./views"</span>})
+    r := gin.Default()
+
+    <span class="text-slate-500">// Attach RHUI as Gin's HTML renderer</span>
+    r.HTMLRender = rhuigin.New(engine)
+
+    r.GET(<span class="text-emerald-300">"/"</span>, <span class="text-brand-400">func</span>(c *gin.Context) {
+        c.HTML(200, <span class="text-emerald-300">"home.rhui"</span>, gin.H{
+            <span class="text-emerald-300">"Title"</span>: <span class="text-emerald-300">"Welcome to Gin + RHUI"</span>,
+        })
+    })
+
+    r.Run(<span class="text-emerald-300">":8080"</span>)
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section: Echo -->
+      <section id="echo" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-bold text-white flex items-center">
+            <span class="w-3 h-3 rounded-full bg-blue-400 mr-3"></span>
+            Echo Adapter
+          </h2>
+          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">pkg/adapter/rhuiecho</span>
+        </div>
+        <p class="text-slate-300 leading-relaxed">
+          Implements the standard <code class="text-brand-300 font-mono text-sm">echo.Renderer</code> interface.
+        </p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>echo_example.go</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code><span class="text-brand-400">package</span> main
+
+<span class="text-brand-400">import</span> (
+    <span class="text-emerald-300">"github.com/labstack/echo/v4"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui/pkg/adapter/rhuiecho"</span>
+)
+
+<span class="text-brand-400">func</span> main() {
+    engine := rhui.NewEngine(rhui.EngineOptions{ViewsDir: <span class="text-emerald-300">"./views"</span>})
+    e := echo.New()
+
+    <span class="text-slate-500">// Attach RHUI as Echo renderer</span>
+    e.Renderer = rhuiecho.New(engine)
+
+    e.GET(<span class="text-emerald-300">"/"</span>, <span class="text-brand-400">func</span>(c echo.Context) <span class="text-brand-400">error</span> {
+        <span class="text-brand-400">return</span> c.Render(200, <span class="text-emerald-300">"home.rhui"</span>, echo.Map{
+            <span class="text-emerald-300">"Title"</span>: <span class="text-emerald-300">"Echo + RHUI"</span>,
+        })
+    })
+
+    e.Start(<span class="text-emerald-300">":8080"</span>)
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section: Fiber -->
+      <section id="fiber" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-bold text-white flex items-center">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 mr-3"></span>
+            Fiber Adapter
+          </h2>
+          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">pkg/adapter/rhuifiber</span>
+        </div>
+        <p class="text-slate-300 leading-relaxed">
+          Compatible with Fiber v2 / v3 views engine (<code class="text-brand-300 font-mono text-sm">fiber.Views</code>).
+        </p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>fiber_example.go</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code><span class="text-brand-400">package</span> main
+
+<span class="text-brand-400">import</span> (
+    <span class="text-emerald-300">"github.com/gofiber/fiber/v2"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui/pkg/adapter/rhuifiber"</span>
+)
+
+<span class="text-brand-400">func</span> main() {
+    engine := rhui.NewEngine(rhui.EngineOptions{ViewsDir: <span class="text-emerald-300">"./views"</span>})
+
+    app := fiber.New(fiber.Config{
+        Views: rhuifiber.New(engine),
+    })
+
+    app.Get(<span class="text-emerald-300">"/"</span>, <span class="text-brand-400">func</span>(c *fiber.Ctx) <span class="text-brand-400">error</span> {
+        <span class="text-brand-400">return</span> c.Render(<span class="text-emerald-300">"home.rhui"</span>, fiber.Map{
+            <span class="text-emerald-300">"Title"</span>: <span class="text-emerald-300">"Fiber + RHUI Fast Performance"</span>,
+        })
+    })
+
+    app.Listen(<span class="text-emerald-300">":8080"</span>)
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section: Chi & net/http -->
+      <section id="chi" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-bold text-white flex items-center">
+            <span class="w-3 h-3 rounded-full bg-purple-400 mr-3"></span>
+            Chi & Standard net/http
+          </h2>
+          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">pkg/adapter/rhuichi</span>
+        </div>
+        <p class="text-slate-300 leading-relaxed">
+          Provides idiomatic helper functions <code class="text-brand-300 font-mono text-sm">Render(w, template, data)</code> and <code class="text-brand-300 font-mono text-sm">RenderWithLayout(w, layout, template, data)</code> compatible with Chi and any <code class="text-brand-300 font-mono text-sm">http.Handler</code>.
+        </p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>chi_example.go</span>
+            <button class="copy-button" onclick="copyCode(this)">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm font-mono text-slate-300"><code><span class="text-brand-400">package</span> main
+
+<span class="text-brand-400">import</span> (
+    <span class="text-emerald-300">"net/http"</span>
+    <span class="text-emerald-300">"github.com/go-chi/chi/v5"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui/pkg/adapter/rhuichi"</span>
+)
+
+<span class="text-brand-400">func</span> main() {
+    engine := rhui.NewEngine(rhui.EngineOptions{ViewsDir: <span class="text-emerald-300">"./views"</span>})
+    adapter := rhuichi.New(engine)
+
+    r := chi.NewRouter()
+
+    r.Get(<span class="text-emerald-300">"/"</span>, <span class="text-brand-400">func</span>(w http.ResponseWriter, r *http.Request) {
+        adapter.Render(w, <span class="text-emerald-300">"home.rhui"</span>, map[<span class="text-brand-400">string</span>]<span class="text-brand-400">any</span>{
+            <span class="text-emerald-300">"Title"</span>: <span class="text-emerald-300">"Chi + RHUI Router"</span>,
+        })
+    })
+
+    http.ListenAndServe(<span class="text-emerald-300">":8080"</span>, r)
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Next Steps & Pagination -->
+      <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <a href="../sse/" class="flex items-center text-slate-400 hover:text-white font-medium text-sm">
+          <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Realtime SSE
+        </a>
+        <a href="../seo/" class="flex items-center text-brand-400 hover:text-brand-300 font-semibold text-sm">
+          SEO & Meta <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+        </a>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-dark-950 py-10 text-center text-xs text-slate-400 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p>© 2026 RHUI Template Engine. Open source under MIT License.</p>
+      <div class="flex items-center space-x-4">
+        <a href="https://github.com/suserc0de/rhui" class="hover:text-white">GitHub</a>
+        <a href="https://paypal.me/ridwanhaqi" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 font-medium">Support via PayPal</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/docs.js"></script>
+</body>
+</html>
