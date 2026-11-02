@@ -180,6 +180,27 @@ func main() {
 }
 ```
 
+### Chi Router & Standard `net/http`
+```go
+import (
+    "github.com/go-chi/chi/v5"
+    "github.com/coderhaqi/rhui"
+    rhuichi "github.com/coderhaqi/rhui/adapter/chi"
+)
+
+func main() {
+    engine, _ := rhui.New(rhui.WithDir("templates"))
+    r := chi.NewRouter()
+
+    r.Get("/dashboard", func(w http.ResponseWriter, r *http.Request) {
+        rhuichi.RenderWithLayout(w, http.StatusOK, engine, "layouts/main", "pages/dashboard", map[string]any{
+            "Title": "Overview",
+        })
+    })
+    http.ListenAndServe(":8080", r)
+}
+```
+
 ---
 
 ## ⚡ Live Component Streaming (Server-Sent Events)
@@ -218,6 +239,7 @@ func OnOrderCompleted(order Order) {
 | `<slot />` | Default slot | Place inside `<component>` definition |
 | `<slot:name>` | Named slot | `<slot:footer>...</slot:footer>` |
 | `<if test="expr">` | Conditional block | `<if test="len(Items) > 0">...</if><else>...</else>` |
+| `has_slot("name")` | Check if named slot is provided | `<if test="has_slot('actions')">...</if>` |
 | `<each items="x" as="item">` | Iteration block | `<each items="Users" as="user">...</each>` |
 
 ---

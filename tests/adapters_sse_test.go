@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/coderhaqi/rhui"
+	"github.com/coderhaqi/rhui/adapter/chi"
 	"github.com/coderhaqi/rhui/adapter/echo"
 	"github.com/coderhaqi/rhui/adapter/fiber"
 	"github.com/coderhaqi/rhui/adapter/gin"
@@ -30,6 +31,24 @@ func TestNetHTTPAdapter(t *testing.T) {
 	}
 	if !strings.Contains(rec.Body.String(), "<h1>Welcome</h1>") {
 		t.Fatalf("unexpected body: %s", rec.Body.String())
+	}
+}
+
+func TestChiAdapter(t *testing.T) {
+	engine, _ := rhui.New()
+	_ = engine.ParseTemplate("chi-page", "<h2>Chi Route</h2>")
+
+	rec := httptest.NewRecorder()
+	err := chi.Render(rec, http.StatusOK, engine, "chi-page", nil)
+	if err != nil {
+		t.Fatalf("chi adapter render failed: %v", err)
+	}
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", rec.Code)
+	}
+	if !strings.Contains(rec.Body.String(), "<h2>Chi Route</h2>") {
+		t.Fatalf("unexpected chi output: %s", rec.Body.String())
 	}
 }
 

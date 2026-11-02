@@ -358,6 +358,24 @@ func (p *exprParser) parseFunctionCall(funcName string) (any, error) {
 		default:
 			return 0, nil
 		}
+	case "has_slot":
+		if len(args) == 0 || args[0] == nil {
+			return false, nil
+		}
+		slotName := fmt.Sprint(args[0])
+		var slotKey string
+		if slotName == "" || slotName == "default" {
+			slotKey = "__default_slot__"
+		} else {
+			slotKey = "__slot_" + slotName + "__"
+		}
+		if val, ok := p.scope.Get(slotKey); ok && val != nil {
+			if rv := reflect.ValueOf(val); rv.Kind() == reflect.Slice {
+				return rv.Len() > 0, nil
+			}
+			return true, nil
+		}
+		return false, nil
 	}
 
 	// Check custom functions

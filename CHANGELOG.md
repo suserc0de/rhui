@@ -14,5 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase 3: Hierarchical execution scope (`runtime/scope.go`) and sandboxed expression evaluator (`runtime/evaluator.go`) supporting literals, field access, logical & comparison operators, and safe builtins.
 - Phase 4: Component metadata registry (`compiler/component.go`), streaming renderer (`runtime/renderer.go`) with boolean attribute awareness, slot resolution, and top-level public engine API (`engine.go`).
 - Phase 5: Contextual HTML escaping, XSS security test suite, and concurrency benchmark suite.
-- Phase 6: Multi-framework adapters (Gin, Echo, Fiber, Chi/nethttp) and Realtime Server-Sent Events package (`sse/`).
-- Documentation: Comprehensive `README.md`, `LICENSE` (MIT), and `CONTRIBUTING.md`.
+- Phase 6: Multi-framework adapters (Gin, Echo, Fiber, Chi, net/http) and Realtime Server-Sent Events package (`sse/`).
+- Phase 7: Real-world admin dashboard application demo (`examples/admin-dashboard/`) and official VS Code syntax extension (`tooling/vscode/`).
+- Enhancements: `embed.FS` support via `loader.Loader`, `devMode` auto-reload, buffer pooling via `sync.Pool`, `RenderWithLayout` helper, and `has_slot("name")` evaluator built-in function.
+- Documentation: Comprehensive `README.md`, PayPal donation support, `LICENSE` (MIT), and `CONTRIBUTING.md`.
