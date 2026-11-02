@@ -162,7 +162,7 @@
             <span class="w-3 h-3 rounded-full bg-cyan-400 mr-3"></span>
             Gin Adapter
           </h2>
-          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">pkg/adapter/rhuigin</span>
+          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">adapter/gin</span>
         </div>
         <p class="text-slate-300 leading-relaxed">
           The Gin adapter implements <code class="text-brand-300 font-mono text-sm">render.HTMLRender</code>. Assign it to <code class="text-brand-300 font-mono text-sm">router.HTMLRender</code> and invoke <code class="text-brand-300 font-mono text-sm">c.HTML(status, templateName, data)</code>.
@@ -180,7 +180,7 @@
 <span class="text-brand-400">import</span> (
     <span class="text-emerald-300">"github.com/gin-gonic/gin"</span>
     <span class="text-emerald-300">"github.com/suserc0de/rhui"</span>
-    <span class="text-emerald-300">"github.com/suserc0de/rhui/pkg/adapter/rhuigin"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui/adapter/gin"</span>
 )
 
 <span class="text-brand-400">func</span> main() {
@@ -208,7 +208,7 @@
             <span class="w-3 h-3 rounded-full bg-blue-400 mr-3"></span>
             Echo Adapter
           </h2>
-          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">pkg/adapter/rhuiecho</span>
+          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">adapter/echo</span>
         </div>
         <p class="text-slate-300 leading-relaxed">
           Implements the standard <code class="text-brand-300 font-mono text-sm">echo.Renderer</code> interface.
@@ -226,7 +226,7 @@
 <span class="text-brand-400">import</span> (
     <span class="text-emerald-300">"github.com/labstack/echo/v4"</span>
     <span class="text-emerald-300">"github.com/suserc0de/rhui"</span>
-    <span class="text-emerald-300">"github.com/suserc0de/rhui/pkg/adapter/rhuiecho"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui/adapter/echo"</span>
 )
 
 <span class="text-brand-400">func</span> main() {
@@ -254,7 +254,7 @@
             <span class="w-3 h-3 rounded-full bg-emerald-400 mr-3"></span>
             Fiber Adapter
           </h2>
-          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">pkg/adapter/rhuifiber</span>
+          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">adapter/fiber</span>
         </div>
         <p class="text-slate-300 leading-relaxed">
           Compatible with Fiber v2 / v3 views engine (<code class="text-brand-300 font-mono text-sm">fiber.Views</code>).
@@ -272,7 +272,7 @@
 <span class="text-brand-400">import</span> (
     <span class="text-emerald-300">"github.com/gofiber/fiber/v2"</span>
     <span class="text-emerald-300">"github.com/suserc0de/rhui"</span>
-    <span class="text-emerald-300">"github.com/suserc0de/rhui/pkg/adapter/rhuifiber"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui/adapter/fiber"</span>
 )
 
 <span class="text-brand-400">func</span> main() {
@@ -300,7 +300,7 @@
             <span class="w-3 h-3 rounded-full bg-purple-400 mr-3"></span>
             Chi & Standard net/http
           </h2>
-          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">pkg/adapter/rhuichi</span>
+          <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-1 rounded">adapter/chi</span>
         </div>
         <p class="text-slate-300 leading-relaxed">
           Provides idiomatic helper functions <code class="text-brand-300 font-mono text-sm">Render(w, template, data)</code> and <code class="text-brand-300 font-mono text-sm">RenderWithLayout(w, layout, template, data)</code> compatible with Chi and any <code class="text-brand-300 font-mono text-sm">http.Handler</code>.
@@ -319,7 +319,7 @@
     <span class="text-emerald-300">"net/http"</span>
     <span class="text-emerald-300">"github.com/go-chi/chi/v5"</span>
     <span class="text-emerald-300">"github.com/suserc0de/rhui"</span>
-    <span class="text-emerald-300">"github.com/suserc0de/rhui/pkg/adapter/rhuichi"</span>
+    <span class="text-emerald-300">"github.com/suserc0de/rhui/adapter/chi"</span>
 )
 
 <span class="text-brand-400">func</span> main() {
