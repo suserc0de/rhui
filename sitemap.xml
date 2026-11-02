@@ -13,10 +13,28 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://suserc0de.github.io/rhui/components/</loc>
+    <loc>https://suserc0de.github.io/rhui/showcase/</loc>
     <lastmod>2026-11-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://suserc0de.github.io/rhui/benchmarks/</loc>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://suserc0de.github.io/rhui/validation/</loc>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://suserc0de.github.io/rhui/components/</loc>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://suserc0de.github.io/rhui/syntax/</loc>
