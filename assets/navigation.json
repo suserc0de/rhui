@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Getting Started",
+    "href": "getting-started/",
+    "icon": "play-circle"
+  },
+  {
+    "title": "Components & Slots",
+    "href": "components/",
+    "icon": "box"
+  },
+  {
+    "title": "Syntax & Directives",
+    "href": "syntax/",
+    "icon": "code"
+  },
+  {
+    "title": "Benchmarks",
+    "href": "benchmarks/",
+    "icon": "gauge"
+  },
+  {
+    "title": "SaaS Showcase",
+    "href": "showcase/",
+    "icon": "layout-dashboard"
+  },
+  {
+    "title": "Production Validation",
+    "href": "validation/",
+    "icon": "shield-check"
+  },
+  {
+    "title": "Realtime SSE",
+    "href": "sse/",
+    "icon": "radio"
+  },
+  {
+    "title": "Framework Adapters",
+    "href": "frameworks/",
+    "icon": "layers"
+  },
+  {
+    "title": "SEO & Sitemap",
+    "href": "seo/",
+    "icon": "search"
+  }
+]
