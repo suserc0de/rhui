@@ -106,12 +106,38 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 	// Render attributes
 	for _, attr := range elem.Attributes {
 		if attr.IsColon {
-			// Dynamic expression binding: e.g. :disabled="false" or :class="myClass"
+			// Dynamic expression binding: e.g. :disabled="false" or :attrs="myAttrs"
 			val, err := r.evaluator.Eval(attr.Value, scope)
 			if err != nil {
 				return err
 			}
 			attrName := strings.TrimPrefix(attr.Name, ":")
+
+			// Handle :attrs dynamic attribute spreading
+			if attrName == "attrs" {
+				if m, ok := val.(map[string]any); ok {
+					for k, v := range m {
+						if b, isBool := v.(bool); isBool {
+							if b {
+								if _, err := fmt.Fprintf(w, " %s", EscapeHTML(k)); err != nil {
+									return err
+								}
+							}
+						} else if v != nil {
+							vStr := fmt.Sprint(v)
+							if k == "href" || k == "src" {
+								vStr = SanitizeURL(vStr)
+							} else {
+								vStr = EscapeHTML(vStr)
+							}
+							if _, err := fmt.Fprintf(w, " %s=\"%s\"", EscapeHTML(k), vStr); err != nil {
+								return err
+							}
+						}
+					}
+				}
+				continue
+			}
 
 			// Boolean attribute handling:
 			// If false or nil, omit the attribute entirely!
@@ -197,20 +223,34 @@ func (r *Renderer) renderComponent(w io.Writer, comp *ast.ComponentNode, scope *
 		compScope.Set(propDef.Name, propDef.DefaultValue)
 	}
 
-	// Evaluate passed attributes/props
+	// Evaluate passed attributes/props and collect undeclared ones into extra_attrs
+	extraAttrs := make(map[string]any)
 	for _, attr := range comp.Attributes {
 		propName := attr.Name
-		if attr.IsColon {
+		isDynamic := attr.IsColon
+		if isDynamic {
 			propName = strings.TrimPrefix(attr.Name, ":")
+		}
+
+		var propVal any
+		if isDynamic {
 			val, err := r.evaluator.Eval(attr.Value, scope)
 			if err != nil {
 				return err
 			}
-			compScope.Set(propName, val)
+			propVal = val
 		} else {
-			compScope.Set(propName, attr.Value)
+			propVal = attr.Value
+		}
+
+		// Check if declared in component props
+		if _, isDeclared := meta.Props[propName]; isDeclared {
+			compScope.Set(propName, propVal)
+		} else {
+			extraAttrs[propName] = propVal
 		}
 	}
+	compScope.Set("extra_attrs", extraAttrs)
 
 	// Attach slots into component scope
 	compScope.Set("__default_slot__", comp.DefaultSlot)
@@ -249,6 +289,16 @@ func (r *Renderer) renderSlot(w io.Writer, slot *ast.SlotNode, compScope *Scope)
 		}
 	}
 
+	// If no caller slot provided, render fallback children
+	if len(slotNodes) == 0 && len(slot.Fallback) > 0 {
+		for _, node := range slot.Fallback {
+			if err := r.RenderNode(w, node, compScope); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
 	// Render slot contents with the parent/caller's scope
 	for _, node := range slotNodes {
 		if err := r.RenderNode(w, node, parentScope); err != nil {
@@ -273,7 +323,8 @@ func (r *Renderer) renderEach(w io.Writer, each *ast.EachNode, scope *Scope) err
 		return nil
 	}
 
-	for i := 0; i < rv.Len(); i++ {
+	totalLen := rv.Len()
+	for i := 0; i < totalLen; i++ {
 		item := rv.Index(i).Interface()
 		loopScope := scope.SubScope()
 		if each.As != "" {
@@ -282,6 +333,14 @@ func (r *Renderer) renderEach(w io.Writer, each *ast.EachNode, scope *Scope) err
 		if each.Index != "" {
 			loopScope.Set(each.Index, i)
 		}
+
+		// Inject loop metadata variables
+		loopScope.Set("@index", i)
+		loopScope.Set("@count", i+1)
+		loopScope.Set("@first", i == 0)
+		loopScope.Set("@last", i == totalLen-1)
+		loopScope.Set("@even", (i+1)%2 == 0)
+		loopScope.Set("@odd", (i+1)%2 != 0)
 
 		for _, child := range each.Body {
 			if err := r.RenderNode(w, child, loopScope); err != nil {

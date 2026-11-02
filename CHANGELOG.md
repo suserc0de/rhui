@@ -17,4 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase 6: Multi-framework adapters (Gin, Echo, Fiber, Chi, net/http) and Realtime Server-Sent Events package (`sse/`).
 - Phase 7: Real-world admin dashboard application demo (`examples/admin-dashboard/`) and official VS Code syntax extension (`tooling/vscode/`).
 - Enhancements: `embed.FS` support via `loader.Loader`, `devMode` auto-reload, buffer pooling via `sync.Pool`, `RenderWithLayout` helper, and `has_slot("name")` evaluator built-in function.
+- Phase 8: Slot fallback content resolution and loop iteration metadata variables (`@index`, `@count`, `@first`, `@last`, `@even`, `@odd`).
+- Phase 9: Pipe filter expressions (`|`) with built-in formatters (`upper`, `lower`, `trim`, `dateFormat`, `rupiah`, `default`, `json`) and `engine.RegisterFilter`.
+- Phase 10: First-class HTMX fragment rendering (`engine.RenderFragment(w, name, fragmentID, data)`).
+- Phase 11: Dynamic attribute spreading (`:attrs="extra_attrs"`) for generic wrapper components.
+- Phase 12: First-class SEO package (`seo/`) with XML Sitemap generator and Schema.org JSON-LD structured data generator.
 - Documentation: Comprehensive `README.md`, PayPal donation support, `LICENSE` (MIT), and `CONTRIBUTING.md`.

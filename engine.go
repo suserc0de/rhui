@@ -99,6 +99,11 @@ func (e *Engine) RegisterFunc(name string, fn any) {
 	e.evaluator.RegisterFunc(name, fn)
 }
 
+// RegisterFilter registers a custom filter into the engine evaluator.
+func (e *Engine) RegisterFilter(name string, fn any) {
+	e.evaluator.RegisterFilter(name, fn)
+}
+
 // Reload compiles and refreshes all templates and components from the loader.
 func (e *Engine) Reload() error {
 	if e.loader == nil {
@@ -136,6 +141,69 @@ func (e *Engine) Reload() error {
 	e.templates = newTemplates
 	e.registry = newRegistry
 	e.renderer = runtime.NewRenderer(e.registry, e.evaluator)
+	return nil
+}
+
+// RenderFragment renders only a specific node with fragment="fragmentID" from the template.
+func (e *Engine) RenderFragment(w io.Writer, name, fragmentID string, data any) error {
+	if e.devMode {
+		_ = e.Reload()
+	}
+
+	cleanName := filepath.Clean(name)
+	e.mu.RLock()
+	root, ok := e.templates[cleanName]
+	if !ok {
+		root, ok = e.templates[cleanName+e.extension]
+	}
+	e.mu.RUnlock()
+
+	if !ok {
+		return fmt.Errorf("template %q not found", name)
+	}
+
+	fragmentNode := findFragment(root, fragmentID)
+	if fragmentNode == nil {
+		return fmt.Errorf("fragment %q not found in template %q", fragmentID, name)
+	}
+
+	scope := runtime.NewScope(data)
+	return e.renderer.RenderNode(w, fragmentNode, scope)
+}
+
+func findFragment(node ast.Node, id string) ast.Node {
+	switch n := node.(type) {
+	case *ast.RootNode:
+		for _, child := range n.Children {
+			if match := findFragment(child, id); match != nil {
+				return match
+			}
+		}
+	case *ast.ElementNode:
+		for _, attr := range n.Attributes {
+			if attr.Name == "fragment" && attr.Value == id {
+				return n
+			}
+		}
+		for _, child := range n.Children {
+			if match := findFragment(child, id); match != nil {
+				return match
+			}
+		}
+	case *ast.ComponentNode:
+		for _, child := range n.DefaultSlot {
+			if match := findFragment(child, id); match != nil {
+				return match
+			}
+		}
+		for _, slotNodes := range n.NamedSlots {
+			for _, child := range slotNodes {
+				if match := findFragment(child, id); match != nil {
+					return match
+				}
+			}
+		}
+	}
 	return nil
 }
 

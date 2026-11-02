@@ -149,6 +149,8 @@ func (p *Parser) parseTagOrComponent() ast.Node {
 				// Check if child is a named slot block
 				if slotNode, ok := child.(*namedSlotContainer); ok {
 					comp.NamedSlots[slotNode.name] = append(comp.NamedSlots[slotNode.name], slotNode.children...)
+				} else if slotNode, ok := child.(*ast.SlotNode); ok && slotNode.Name != "" {
+					comp.NamedSlots[slotNode.Name] = append(comp.NamedSlots[slotNode.Name], slotNode.Fallback...)
 				} else {
 					comp.DefaultSlot = append(comp.DefaultSlot, child)
 				}
@@ -430,21 +432,21 @@ func (p *Parser) parseSlot(pos ast.Position, rawName string) ast.Node {
 		}
 	}
 
-	// If it's a container like <slot:actions> ... </slot:actions>
-	container := &namedSlotContainer{
-		name: slotName,
-		pos:  pos,
+	// Slot with fallback content (e.g. <slot>fallback</slot> or <slot:actions>fallback</slot:actions>)
+	slotNode := &ast.SlotNode{
+		Name: slotName,
+		Pos:  pos,
 	}
 
 	for p.curToken.Type != TokenEOF && !p.isClosingTag(rawName) {
 		child := p.parseNode()
 		if child != nil {
-			container.children = append(container.children, child)
+			slotNode.Fallback = append(slotNode.Fallback, child)
 		}
 	}
 
 	p.expectClosingTag(rawName)
-	return container
+	return slotNode
 }
 
 func (p *Parser) isClosingTag(name string) bool {

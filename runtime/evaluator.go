@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -8,21 +9,28 @@ import (
 	"unicode"
 )
 
-// Evaluator evaluates safe allowlisted expressions.
+// Evaluator evaluates safe allowlisted expressions and pipe filters.
 type Evaluator struct {
-	customFuncs map[string]any
+	customFuncs   map[string]any
+	customFilters map[string]any
 }
 
 // NewEvaluator creates a new Evaluator.
 func NewEvaluator() *Evaluator {
 	return &Evaluator{
-		customFuncs: make(map[string]any),
+		customFuncs:   make(map[string]any),
+		customFilters: make(map[string]any),
 	}
 }
 
 // RegisterFunc registers a custom function to the evaluator.
 func (e *Evaluator) RegisterFunc(name string, fn any) {
 	e.customFuncs[name] = fn
+}
+
+// RegisterFilter registers a custom filter into the evaluator.
+func (e *Evaluator) RegisterFilter(name string, fn any) {
+	e.customFilters[name] = fn
 }
 
 // Eval evaluates an expression string within a given Scope.
@@ -32,10 +40,11 @@ func (e *Evaluator) Eval(expr string, scope *Scope) (any, error) {
 		return nil, nil
 	}
 	p := &exprParser{
-		input:       expr,
-		pos:         0,
-		scope:       scope,
-		customFuncs: e.customFuncs,
+		input:         expr,
+		pos:           0,
+		scope:         scope,
+		customFuncs:   e.customFuncs,
+		customFilters: e.customFilters,
 	}
 	return p.parseExpression()
 }
@@ -97,14 +106,72 @@ func IsTruthy(val any) bool {
 }
 
 type exprParser struct {
-	input       string
-	pos         int
-	scope       *Scope
-	customFuncs map[string]any
+	input         string
+	pos           int
+	scope         *Scope
+	customFuncs   map[string]any
+	customFilters map[string]any
 }
 
 func (p *exprParser) parseExpression() (any, error) {
-	return p.parseOr()
+	val, err := p.parseOr()
+	if err != nil {
+		return nil, err
+	}
+
+	// Handle pipe filter chaining: expr | filter1 | filter2("arg")
+	for {
+		p.skipWhitespace()
+		if p.pos < len(p.input) && p.input[p.pos] == '|' {
+			// Ensure it's not ||
+			if p.pos+1 < len(p.input) && p.input[p.pos+1] == '|' {
+				break
+			}
+			p.pos++ // consume '|'
+			p.skipWhitespace()
+			filterName := p.parseIdentifier()
+
+			var filterArgs []any
+			filterArgs = append(filterArgs, val) // target value is first argument
+
+			p.skipWhitespace()
+			if p.pos < len(p.input) && p.input[p.pos] == '(' {
+				p.pos++ // consume '('
+				p.skipWhitespace()
+				if p.pos < len(p.input) && p.input[p.pos] == ')' {
+					p.pos++
+				} else {
+					for {
+						arg, err := p.parseExpression()
+						if err != nil {
+							return nil, err
+						}
+						filterArgs = append(filterArgs, arg)
+						p.skipWhitespace()
+						if p.pos < len(p.input) && p.input[p.pos] == ',' {
+							p.pos++
+							continue
+						}
+						if p.pos < len(p.input) && p.input[p.pos] == ')' {
+							p.pos++
+							break
+						}
+						break
+					}
+				}
+			}
+
+			filteredVal, err := p.applyFilter(filterName, filterArgs)
+			if err != nil {
+				return nil, err
+			}
+			val = filteredVal
+		} else {
+			break
+		}
+	}
+
+	return val, nil
 }
 
 func (p *exprParser) parseOr() (any, error) {
@@ -246,8 +313,8 @@ func (p *exprParser) parsePrimary() (any, error) {
 		return p.parseNumber()
 	}
 
-	// Identifier or function call or field access
-	if unicode.IsLetter(rune(ch)) || ch == '_' {
+	// Identifier or function call or field access or loop variable (@index, @first, etc.)
+	if unicode.IsLetter(rune(ch)) || ch == '_' || ch == '@' {
 		ident := p.parseIdentifier()
 
 		p.skipWhitespace()
@@ -308,7 +375,7 @@ func (p *exprParser) parseIdentifier() string {
 	start := p.pos
 	for p.pos < len(p.input) {
 		c := rune(p.input[p.pos])
-		if unicode.IsLetter(c) || unicode.IsDigit(c) || c == '_' {
+		if unicode.IsLetter(c) || unicode.IsDigit(c) || c == '_' || c == '@' {
 			p.pos++
 		} else {
 			break
@@ -399,6 +466,83 @@ func (p *exprParser) parseFunctionCall(funcName string) (any, error) {
 	}
 
 	return nil, fmt.Errorf("undefined function %q in expression", funcName)
+}
+
+func (p *exprParser) applyFilter(name string, args []any) (any, error) {
+	if len(args) == 0 {
+		return nil, nil
+	}
+	target := args[0]
+
+	// Built-in filters
+	switch name {
+	case "upper":
+		return strings.ToUpper(fmt.Sprint(target)), nil
+	case "lower":
+		return strings.ToLower(fmt.Sprint(target)), nil
+	case "trim":
+		return strings.TrimSpace(fmt.Sprint(target)), nil
+	case "rupiah":
+		val, _ := toFloat(target)
+		return fmt.Sprintf("Rp %s", formatRupiahNumber(int64(val))), nil
+	case "default":
+		if target == nil || fmt.Sprint(target) == "" {
+			if len(args) > 1 {
+				return args[1], nil
+			}
+			return "", nil
+		}
+		return target, nil
+	case "dateFormat":
+		if len(args) > 1 {
+			layout := fmt.Sprint(args[1])
+			if t, ok := target.(interface{ Format(string) string }); ok {
+				return t.Format(layout), nil
+			}
+		}
+		return target, nil
+	case "json":
+		bytes, err := json.Marshal(target)
+		if err != nil {
+			return "", err
+		}
+		return string(bytes), nil
+	}
+
+	// Custom registered filters
+	if fn, ok := p.customFilters[name]; ok {
+		rv := reflect.ValueOf(fn)
+		if rv.Kind() == reflect.Func {
+			var in []reflect.Value
+			for _, a := range args {
+				if a == nil {
+					in = append(in, reflect.Zero(reflect.TypeOf((*any)(nil)).Elem()))
+				} else {
+					in = append(in, reflect.ValueOf(a))
+				}
+			}
+			out := rv.Call(in)
+			if len(out) > 0 {
+				return out[0].Interface(), nil
+			}
+			return nil, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unknown filter %q", name)
+}
+
+func formatRupiahNumber(n int64) string {
+	in := strconv.FormatInt(n, 10)
+	var out []byte
+	l := len(in)
+	for i := 0; i < l; i++ {
+		if i > 0 && (l-i)%3 == 0 {
+			out = append(out, '.')
+		}
+		out = append(out, in[i])
+	}
+	return string(out)
 }
 
 func (p *exprParser) resolveIdentifier(ident string) any {

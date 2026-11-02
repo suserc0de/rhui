@@ -236,8 +236,12 @@ func OnOrderCompleted(order Order) {
 | `<ui:Name>` | Invoking a component | `<ui:Button variant="primary">Submit</ui:Button>` |
 | `:attr="expr"` | Dynamic expression binding | `<button :disabled="User.IsActive == false" />` |
 | `{{ expr }}` | Text interpolation | `Hello, {{ User.Name }}!` |
-| `<slot />` | Default slot | Place inside `<component>` definition |
+| `<slot>fallback</slot>` | Slot with fallback content | `<slot><p>Default content</p></slot>` |
 | `<slot:name>` | Named slot | `<slot:footer>...</slot:footer>` |
+| `{{ val \| filter }}` | Pipe filter transformation | `{{ Price \| rupiah }}`, `{{ Name \| upper }}` |
+| `@first`, `@last`, `@index` | Loop iteration metadata | `<tr :class="@even ? 'even' : 'odd'">` |
+| `fragment="id"` | Partial fragment for HTMX | `engine.RenderFragment(w, "page", "id", data)` |
+| `:attrs="map"` | Dynamic attribute spreading | `<button :attrs="extra_attrs">` |
 | `<if test="expr">` | Conditional block | `<if test="len(Items) > 0">...</if><else>...</else>` |
 | `has_slot("name")` | Check if named slot is provided | `<if test="has_slot('actions')">...</if>` |
 | `<each items="x" as="item">` | Iteration block | `<each items="Users" as="user">...</each>` |
