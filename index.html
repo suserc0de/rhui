@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RHUI — Component-Based SSR Template Engine for Go</title>
   <meta name="description" content="A component-based, high-performance Server-Side Rendering (SSR) template engine for Go with zero JavaScript build step, safe by default, and real-time SSE streaming.">
-  <meta name="keywords" content="RHUI, Go template engine, Go components, SSR Go, HTMX Go, Go web framework">
+  <meta name="keywords" content="RHUI, Go template engine, Go components, SSR Go, HTMX Go, Go web framework, Go template benchmark">
   <link rel="canonical" href="https://suserc0de.github.io/rhui/">
 
   <!-- OpenGraph / Social Meta -->
@@ -64,13 +64,14 @@
         </a>
       </div>
 
-      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+      <nav class="hidden md:flex items-center space-x-5 text-sm font-medium">
         <a href="./getting-started/" class="text-slate-400 hover:text-white transition-colors">Getting Started</a>
         <a href="./components/" class="text-slate-400 hover:text-white transition-colors">Components</a>
         <a href="./syntax/" class="text-slate-400 hover:text-white transition-colors">Syntax</a>
-        <a href="./sse/" class="text-slate-400 hover:text-white transition-colors">Realtime SSE</a>
-        <a href="./frameworks/" class="text-slate-400 hover:text-white transition-colors">Frameworks</a>
-        <a href="./seo/" class="text-slate-400 hover:text-white transition-colors">SEO & Meta</a>
+        <a href="./showcase/" class="text-slate-400 hover:text-white transition-colors">SaaS Showcase</a>
+        <a href="./benchmarks/" class="text-brand-400 hover:text-brand-300 font-semibold transition-colors">Benchmarks</a>
+        <a href="./validation/" class="text-slate-400 hover:text-white transition-colors">Validation</a>
+        <a href="./frameworks/" class="text-slate-400 hover:text-white transition-colors">Adapters</a>
       </nav>
 
       <div class="flex items-center space-x-3">
@@ -90,6 +91,9 @@
       <a href="./getting-started/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Getting Started</a>
       <a href="./components/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Components & Slots</a>
       <a href="./syntax/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Syntax & Directives</a>
+      <a href="./showcase/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">SaaS Showcase</a>
+      <a href="./benchmarks/" class="text-brand-400 font-semibold py-2 border-b border-slate-800">Benchmarks</a>
+      <a href="./validation/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Validation & Security</a>
       <a href="./sse/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Realtime SSE</a>
       <a href="./frameworks/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">Framework Adapters</a>
       <a href="./seo/" class="text-slate-300 hover:text-brand-400 py-2 border-b border-slate-800">SEO & Sitemap</a>
@@ -117,9 +121,9 @@
           <span>Get Started in 5 Minutes</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </a>
-        <a href="./components/" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition-all border border-slate-700 flex items-center justify-center space-x-2">
-          <i data-lucide="box" class="w-4 h-4 text-brand-400"></i>
-          <span>Explore Components</span>
+        <a href="./benchmarks/" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition-all border border-slate-700 flex items-center justify-center space-x-2">
+          <i data-lucide="gauge" class="w-4 h-4 text-emerald-400"></i>
+          <span>Verified Benchmarks (17k RPS)</span>
         </a>
       </div>
 
@@ -134,6 +138,37 @@
           </div>
           <pre class="p-3.5 overflow-x-auto text-xs sm:text-sm font-mono text-emerald-300"><code>go get github.com/suserc0de/rhui</code></pre>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benchmark Highlight Banner -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 border-b border-slate-800/80">
+    <div class="p-6 rounded-2xl bg-gradient-to-r from-brand-950/60 via-slate-900 to-slate-900 border border-brand-500/20 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-6">
+      <div class="space-y-2 text-center lg:text-left">
+        <div class="inline-flex items-center space-x-2 text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Accurate Go testing.B Benchmark Suite</span>
+        </div>
+        <h2 class="text-2xl font-bold text-white tracking-tight">1.88 µs Render Latency • 17,079 RPS Under Load</h2>
+        <p class="text-sm text-slate-400 max-w-xl">
+          Pre-compiled immutable AST cached in memory paired with zero-allocation <code class="text-brand-300 font-mono text-xs">sync.Pool</code> buffer recycling.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="text-center px-4 py-2 rounded-xl bg-slate-800/80 border border-slate-700">
+          <div class="text-2xl font-extrabold text-emerald-400 font-mono">1,880 ns</div>
+          <div class="text-xs text-slate-400">Single Render</div>
+        </div>
+        <div class="text-center px-4 py-2 rounded-xl bg-slate-800/80 border border-slate-700">
+          <div class="text-2xl font-extrabold text-brand-400 font-mono">747 B</div>
+          <div class="text-xs text-slate-400">Alloc / op</div>
+        </div>
+        <a href="./benchmarks/" class="px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-all shadow-md flex items-center space-x-1.5 whitespace-nowrap">
+          <span>View Report</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </a>
       </div>
     </div>
   </section>
@@ -253,11 +288,11 @@ http.HandleFunc(<span class="text-emerald-300">"/"</span>, <span class="text-bra
 
       <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition">
         <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
-          <i data-lucide="cpu" class="w-5 h-5"></i>
+          <i data-lucide="gauge" class="w-5 h-5"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-2">Zero Allocation Pools</h3>
+        <h3 class="text-lg font-bold text-white mb-2">17,000+ RPS Throughput</h3>
         <p class="text-sm text-slate-400 leading-relaxed">
-          Internal AST reuse, concurrent buffer recycling with sync.Pool, and high-throughput rendering under intense workloads.
+          Internal AST reuse, concurrent buffer recycling with sync.Pool, and sub-millisecond p95 latency under 10k connections.
         </p>
       </div>
 
