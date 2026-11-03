@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"sync/atomic"
 
 	"github.com/suserc0de/rhui/ast"
 	"github.com/suserc0de/rhui/compiler"
@@ -46,6 +47,13 @@ func WithDevMode(enabled bool) Option {
 	}
 }
 
+// engineState holds an atomic, immutable snapshot of the compiled templates and renderer.
+type engineState struct {
+	templates map[string]*ast.RootNode
+	registry  *compiler.Registry
+	renderer  *runtime.Renderer
+}
+
 // Engine represents the top-level RHUI template engine.
 type Engine struct {
 	dir       string
@@ -54,12 +62,9 @@ type Engine struct {
 	devMode   bool
 	loader    loader.Loader
 
-	registry  *compiler.Registry
 	evaluator *runtime.Evaluator
-	renderer  *runtime.Renderer
-
-	templates map[string]*ast.RootNode
-	mu        sync.RWMutex
+	state     atomic.Pointer[engineState]
+	reloadMu  sync.Mutex // serializes Reload() and ParseTemplate()
 }
 
 // New creates and initializes a new RHUI Engine.
@@ -67,16 +72,20 @@ func New(opts ...Option) (*Engine, error) {
 	e := &Engine{
 		dir:       "templates",
 		extension: ".rhui",
-		registry:  compiler.NewRegistry(),
 		evaluator: runtime.NewEvaluator(),
-		templates: make(map[string]*ast.RootNode),
 	}
+
+	initialRegistry := compiler.NewRegistry()
+	initialState := &engineState{
+		templates: make(map[string]*ast.RootNode),
+		registry:  initialRegistry,
+		renderer:  runtime.NewRenderer(initialRegistry, e.evaluator),
+	}
+	e.state.Store(initialState)
 
 	for _, opt := range opts {
 		opt(e)
 	}
-
-	e.renderer = runtime.NewRenderer(e.registry, e.evaluator)
 
 	// Configure appropriate Loader (embed.FS or Disk)
 	if e.fsys != nil {
@@ -107,6 +116,9 @@ func NewEngine(opts ...EngineOptions) *Engine {
 		if opts[0].ViewsDir != "" {
 			optList = append(optList, WithDir(opts[0].ViewsDir))
 		}
+		if opts[0].AutoReload {
+			optList = append(optList, WithDevMode(true))
+		}
 	}
 	e, err := New(optList...)
 	if err != nil {
@@ -126,13 +138,14 @@ func (e *Engine) RegisterFilter(name string, fn any) {
 }
 
 // Reload compiles and refreshes all templates and components from the loader.
+// Thread-safe and atomic: active renders proceed on the previous snapshot without race conditions.
 func (e *Engine) Reload() error {
 	if e.loader == nil {
 		return nil
 	}
 
-	e.mu.Lock()
-	defer e.mu.Unlock()
+	e.reloadMu.Lock()
+	defer e.reloadMu.Unlock()
 
 	newTemplates := make(map[string]*ast.RootNode)
 	newRegistry := compiler.NewRegistry()
@@ -159,9 +172,12 @@ func (e *Engine) Reload() error {
 		return err
 	}
 
-	e.templates = newTemplates
-	e.registry = newRegistry
-	e.renderer = runtime.NewRenderer(e.registry, e.evaluator)
+	newState := &engineState{
+		templates: newTemplates,
+		registry:  newRegistry,
+		renderer:  runtime.NewRenderer(newRegistry, e.evaluator),
+	}
+	e.state.Store(newState)
 	return nil
 }
 
@@ -171,13 +187,12 @@ func (e *Engine) RenderFragment(w io.Writer, name, fragmentID string, data any) 
 		_ = e.Reload()
 	}
 
+	snapshot := e.state.Load()
 	cleanName := filepath.Clean(name)
-	e.mu.RLock()
-	root, ok := e.templates[cleanName]
+	root, ok := snapshot.templates[cleanName]
 	if !ok {
-		root, ok = e.templates[cleanName+e.extension]
+		root, ok = snapshot.templates[cleanName+e.extension]
 	}
-	e.mu.RUnlock()
 
 	if !ok {
 		return fmt.Errorf("template %q not found", name)
@@ -190,7 +205,7 @@ func (e *Engine) RenderFragment(w io.Writer, name, fragmentID string, data any) 
 
 	scope := runtime.NewScope(data)
 	defer runtime.ReleaseScope(scope)
-	return e.renderer.RenderNode(w, fragmentNode, scope)
+	return snapshot.renderer.RenderNode(w, fragmentNode, scope)
 }
 
 func findFragment(node ast.Node, id string) ast.Node {
@@ -235,16 +250,12 @@ func (e *Engine) Render(w io.Writer, name string, data any) error {
 		_ = e.Reload()
 	}
 
+	snapshot := e.state.Load()
 	cleanName := filepath.Clean(name)
-
-	e.mu.RLock()
-	root, ok := e.templates[cleanName]
+	root, ok := snapshot.templates[cleanName]
 	if !ok {
-		// Try fallback with extension
-		cleanNameWithExt := cleanName + e.extension
-		root, ok = e.templates[cleanNameWithExt]
+		root, ok = snapshot.templates[cleanName+e.extension]
 	}
-	e.mu.RUnlock()
 
 	if !ok {
 		return fmt.Errorf("template %q not found", name)
@@ -252,13 +263,12 @@ func (e *Engine) Render(w io.Writer, name string, data any) error {
 
 	scope := runtime.NewScope(data)
 	defer runtime.ReleaseScope(scope)
-	return e.renderer.RenderNode(w, root, scope)
+	return snapshot.renderer.RenderNode(w, root, scope)
 }
 
 // RenderWithLayout renders a content template inside a layout template.
 // The content template output is injected as the default slot of the layout.
 func (e *Engine) RenderWithLayout(w io.Writer, layoutName, pageName string, data any) error {
-	// 1. Render page content using buffer pool
 	buf := runtime.GetBuffer()
 	defer runtime.PutBuffer(buf)
 
@@ -266,7 +276,6 @@ func (e *Engine) RenderWithLayout(w io.Writer, layoutName, pageName string, data
 		return fmt.Errorf("render page %q failed: %w", pageName, err)
 	}
 
-	// 2. Prepare layout data
 	layoutData := make(map[string]any)
 	if m, ok := data.(map[string]any); ok {
 		for k, v := range m {
@@ -275,26 +284,24 @@ func (e *Engine) RenderWithLayout(w io.Writer, layoutName, pageName string, data
 	}
 	pageHTML := buf.String()
 
+	snapshot := e.state.Load()
 	cleanLayout := filepath.Clean(layoutName)
-	e.mu.RLock()
-	layoutRoot, ok := e.templates[cleanLayout]
+	layoutRoot, ok := snapshot.templates[cleanLayout]
 	if !ok {
-		layoutRoot, ok = e.templates[cleanLayout+e.extension]
+		layoutRoot, ok = snapshot.templates[cleanLayout+e.extension]
 	}
-	e.mu.RUnlock()
 
 	if !ok {
 		return fmt.Errorf("layout %q not found", layoutName)
 	}
 
-	// Create scope and pass pageHTML into default slot
 	scope := runtime.NewScope(layoutData)
 	defer runtime.ReleaseScope(scope)
 	scope.Set("__default_slot__", []ast.Node{
 		&ast.TextNode{Content: pageHTML},
 	})
 
-	return e.renderer.RenderNode(w, layoutRoot, scope)
+	return snapshot.renderer.RenderNode(w, layoutRoot, scope)
 }
 
 // RenderString renders a template to string using buffer pool.
@@ -307,6 +314,7 @@ func (e *Engine) RenderString(name string, data any) (string, error) {
 }
 
 // ParseTemplate parses and registers a raw template string directly under a given name.
+// Thread-safe and atomic: active renders proceed on previous snapshots.
 func (e *Engine) ParseTemplate(name, content string) error {
 	p := parser.NewParser(parser.NewLexer(name, content))
 	root, err := p.Parse()
@@ -314,16 +322,33 @@ func (e *Engine) ParseTemplate(name, content string) error {
 		return err
 	}
 
-	e.mu.Lock()
-	defer e.mu.Unlock()
+	e.reloadMu.Lock()
+	defer e.reloadMu.Unlock()
 
-	// Register any <component name="..."> definitions found inside
-	for _, child := range root.Children {
-		if compDef, ok := child.(*ast.ComponentDefNode); ok {
-			e.registry.Register(compDef.Name, compDef)
+	current := e.state.Load()
+	newTemplates := make(map[string]*ast.RootNode, len(current.templates)+1)
+	for k, v := range current.templates {
+		newTemplates[k] = v
+	}
+	newRegistry := compiler.NewRegistry()
+	if current.registry != nil {
+		for _, comp := range current.registry.All() {
+			newRegistry.RegisterMeta(comp)
 		}
 	}
 
-	e.templates[filepath.Clean(name)] = root
+	for _, child := range root.Children {
+		if compDef, ok := child.(*ast.ComponentDefNode); ok {
+			newRegistry.Register(compDef.Name, compDef)
+		}
+	}
+
+	newTemplates[filepath.Clean(name)] = root
+	newState := &engineState{
+		templates: newTemplates,
+		registry:  newRegistry,
+		renderer:  runtime.NewRenderer(newRegistry, e.evaluator),
+	}
+	e.state.Store(newState)
 	return nil
 }

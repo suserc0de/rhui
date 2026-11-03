@@ -49,6 +49,15 @@ func (r *Registry) Get(name string) (*ComponentMeta, bool) {
 	return meta, ok
 }
 
+// All returns all registered ComponentMeta instances.
+func (r *Registry) All() []*ComponentMeta {
+	list := make([]*ComponentMeta, 0, len(r.components))
+	for _, m := range r.components {
+		list = append(list, m)
+	}
+	return list
+}
+
 // List returns all registered component names.
 func (r *Registry) List() []string {
 	var list []string
