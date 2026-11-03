@@ -5,7 +5,7 @@ Thank you for your interest in contributing to **RHUI**! We welcome community co
 ## Development Workflow
 
 ### Prerequisites
-- Go 1.22+ installed
+- Go 1.26+ installed
 - Git
 
 ### Running Tests
