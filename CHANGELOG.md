@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-11-03
+
+### Security (P0)
+- **Inline Event Handler Blocking**: Blocked all dangerous inline event handlers (`onclick`, `onerror`, `onload`, `onmouseover`, etc.) from being injected via `:attrs` dynamic attribute spreading.
+- **Negative Fuzzing Coverage**: Verified 50+ DOM Level 2/3 and HTML5 event handler attributes are strictly discarded.
+
+### Concurrency (P0)
+- **Atomic Snapshotting (`Reload` vs `Render`)**: Replaced mutable template and renderer pointers with atomic engine snapshot storage (`atomic.Pointer[engineState]`), completely eliminating data races during background template reloads under heavy concurrent read traffic.
+
+### API & DX (P1)
+- **Fixed `NewEngine.AutoReload`**: Ensured `EngineOptions.AutoReload` properly configures dev mode (`WithDevMode(true)`).
+
+### Integration Testing (P1)
+- Added full-stack integration tests for Gin, Echo, Fiber, Chi, and standard `net/http` routers.
+- Added concurrent multi-client SSE broadcast verification (20 simultaneous active listeners).
+- Added multi-threaded concurrent reload stress testing (0 data race verified via `go test -race`).
+
 ## [1.0.3] - 2026-11-03
 
 ### Security Hardening (P0)
