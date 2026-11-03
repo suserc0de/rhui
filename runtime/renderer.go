@@ -4,11 +4,40 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/suserc0de/rhui/ast"
 	"github.com/suserc0de/rhui/compiler"
 )
+
+func fastFormatValue(val any) string {
+	switch v := val.(type) {
+	case string:
+		return v
+	case int:
+		return strconv.Itoa(v)
+	case int64:
+		return strconv.FormatInt(v, 10)
+	case int32:
+		return strconv.FormatInt(int64(v), 10)
+	case uint:
+		return strconv.FormatUint(uint64(v), 10)
+	case uint64:
+		return strconv.FormatUint(v, 10)
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64)
+	case float32:
+		return strconv.FormatFloat(float64(v), 'f', -1, 32)
+	case bool:
+		if v {
+			return "true"
+		}
+		return "false"
+	default:
+		return fmt.Sprint(val)
+	}
+}
 
 // Renderer renders AST nodes directly to an io.Writer.
 type Renderer struct {
@@ -53,7 +82,7 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, scope *Scope) error {
 			return err
 		}
 		if val != nil {
-			strVal := fmt.Sprint(val)
+			strVal := fastFormatValue(val)
 			escaped := EscapeHTML(strVal)
 			_, err = io.WriteString(w, escaped)
 			return err
@@ -99,7 +128,10 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, scope *Scope) error {
 }
 
 func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scope) error {
-	if _, err := fmt.Fprintf(w, "<%s", elem.TagName); err != nil {
+	if _, err := io.WriteString(w, "<"); err != nil {
+		return err
+	}
+	if _, err := io.WriteString(w, elem.TagName); err != nil {
 		return err
 	}
 
@@ -119,18 +151,33 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 					for k, v := range m {
 						if b, isBool := v.(bool); isBool {
 							if b {
-								if _, err := fmt.Fprintf(w, " %s", EscapeHTML(k)); err != nil {
+								if _, err := io.WriteString(w, " "); err != nil {
+									return err
+								}
+								if _, err := io.WriteString(w, EscapeHTML(k)); err != nil {
 									return err
 								}
 							}
 						} else if v != nil {
-							vStr := fmt.Sprint(v)
+							vStr := fastFormatValue(v)
 							if k == "href" || k == "src" {
 								vStr = SanitizeURL(vStr)
 							} else {
 								vStr = EscapeHTML(vStr)
 							}
-							if _, err := fmt.Fprintf(w, " %s=\"%s\"", EscapeHTML(k), vStr); err != nil {
+							if _, err := io.WriteString(w, " "); err != nil {
+								return err
+							}
+							if _, err := io.WriteString(w, EscapeHTML(k)); err != nil {
+								return err
+							}
+							if _, err := io.WriteString(w, "=\""); err != nil {
+								return err
+							}
+							if _, err := io.WriteString(w, vStr); err != nil {
+								return err
+							}
+							if _, err := io.WriteString(w, "\""); err != nil {
 								return err
 							}
 						}
@@ -143,25 +190,43 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 			// If false or nil, omit the attribute entirely!
 			if b, ok := val.(bool); ok {
 				if b {
-					if _, err := fmt.Fprintf(w, " %s", attrName); err != nil {
+					if _, err := io.WriteString(w, " "); err != nil {
+						return err
+					}
+					if _, err := io.WriteString(w, attrName); err != nil {
 						return err
 					}
 				}
 			} else if val != nil {
-				valStr := fmt.Sprint(val)
+				valStr := fastFormatValue(val)
 				if attrName == "href" || attrName == "src" {
 					valStr = SanitizeURL(valStr)
 				} else {
 					valStr = EscapeHTML(valStr)
 				}
-				if _, err := fmt.Fprintf(w, " %s=\"%s\"", attrName, valStr); err != nil {
+				if _, err := io.WriteString(w, " "); err != nil {
+					return err
+				}
+				if _, err := io.WriteString(w, attrName); err != nil {
+					return err
+				}
+				if _, err := io.WriteString(w, "=\""); err != nil {
+					return err
+				}
+				if _, err := io.WriteString(w, valStr); err != nil {
+					return err
+				}
+				if _, err := io.WriteString(w, "\""); err != nil {
 					return err
 				}
 			}
 		} else {
 			// Literal attribute
 			if attr.Value == "true" {
-				if _, err := fmt.Fprintf(w, " %s", attr.Name); err != nil {
+				if _, err := io.WriteString(w, " "); err != nil {
+					return err
+				}
+				if _, err := io.WriteString(w, attr.Name); err != nil {
 					return err
 				}
 			} else {
@@ -171,7 +236,19 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 				} else {
 					valStr = EscapeHTML(valStr)
 				}
-				if _, err := fmt.Fprintf(w, " %s=\"%s\"", attr.Name, valStr); err != nil {
+				if _, err := io.WriteString(w, " "); err != nil {
+					return err
+				}
+				if _, err := io.WriteString(w, attr.Name); err != nil {
+					return err
+				}
+				if _, err := io.WriteString(w, "=\""); err != nil {
+					return err
+				}
+				if _, err := io.WriteString(w, valStr); err != nil {
+					return err
+				}
+				if _, err := io.WriteString(w, "\""); err != nil {
 					return err
 				}
 			}
@@ -193,7 +270,13 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 		}
 	}
 
-	_, err := fmt.Fprintf(w, "</%s>", elem.TagName)
+	if _, err := io.WriteString(w, "</"); err != nil {
+		return err
+	}
+	if _, err := io.WriteString(w, elem.TagName); err != nil {
+		return err
+	}
+	_, err := io.WriteString(w, ">")
 	return err
 }
 
