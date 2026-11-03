@@ -425,10 +425,16 @@ func (r *Renderer) renderEach(w io.Writer, each *ast.EachNode, scope *Scope) err
 		loopScope.Set("@even", (i+1)%2 == 0)
 		loopScope.Set("@odd", (i+1)%2 != 0)
 
+		var renderErr error
 		for _, child := range each.Body {
 			if err := r.RenderNode(w, child, loopScope); err != nil {
-				return err
+				renderErr = err
+				break
 			}
+		}
+		ReleaseScope(loopScope)
+		if renderErr != nil {
+			return renderErr
 		}
 	}
 
