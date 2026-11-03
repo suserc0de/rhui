@@ -189,6 +189,7 @@ func (e *Engine) RenderFragment(w io.Writer, name, fragmentID string, data any) 
 	}
 
 	scope := runtime.NewScope(data)
+	defer runtime.ReleaseScope(scope)
 	return e.renderer.RenderNode(w, fragmentNode, scope)
 }
 
@@ -250,6 +251,7 @@ func (e *Engine) Render(w io.Writer, name string, data any) error {
 	}
 
 	scope := runtime.NewScope(data)
+	defer runtime.ReleaseScope(scope)
 	return e.renderer.RenderNode(w, root, scope)
 }
 
@@ -287,6 +289,7 @@ func (e *Engine) RenderWithLayout(w io.Writer, layoutName, pageName string, data
 
 	// Create scope and pass pageHTML into default slot
 	scope := runtime.NewScope(layoutData)
+	defer runtime.ReleaseScope(scope)
 	scope.Set("__default_slot__", []ast.Node{
 		&ast.TextNode{Content: pageHTML},
 	})

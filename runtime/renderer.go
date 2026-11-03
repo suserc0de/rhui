@@ -304,6 +304,7 @@ func (r *Renderer) renderComponent(w io.Writer, comp *ast.ComponentNode, scope *
 
 	// Create an isolated subscope for this component invocation
 	compScope := NewScope(nil)
+	defer ReleaseScope(compScope)
 
 	// Populate props with default values
 	for _, propDef := range meta.Props {
