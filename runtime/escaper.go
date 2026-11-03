@@ -29,10 +29,18 @@ func EscapeAttribute(s string) string {
 
 // IsValidAttributeName validates HTML attribute names according to W3C HTML5 recommendations.
 // Disallows whitespace, control characters, quotes, equals, slashes, and characters that can break attribute boundaries.
+// Security: Automatically rejects all inline event handlers (attributes starting with 'on', e.g. onclick, onerror, onload).
 func IsValidAttributeName(name string) bool {
 	if len(name) == 0 {
 		return false
 	}
+
+	// Security Hardening: Block all inline event handlers (case-insensitive prefix 'on')
+	lower := strings.ToLower(name)
+	if strings.HasPrefix(lower, "on") {
+		return false
+	}
+
 	for i := 0; i < len(name); i++ {
 		c := name[i]
 		// Disallow control characters, whitespace, quotes, slashes, equals, angle brackets, and non-ASCII

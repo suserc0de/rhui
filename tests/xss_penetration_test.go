@@ -130,6 +130,12 @@ func TestDynamicAttributeValidation(t *testing.T) {
 	dangerousAttrs := map[string]any{
 		`valid-id`:                  "my-button",
 		`data-info`:                 "safe",
+		`onclick`:                   "alert('pwn')",
+		`ONCLICK`:                   "alert('pwn2')",
+		`onerror`:                   "steal()",
+		`onload`:                    "evil()",
+		`onfocus`:                   "focusEvil()",
+		`onmouseover`:               "hoverEvil()",
 		`foo" onmouseover="alert(1)`: "injected",
 		`test'onclick='evil()`:      "injected2",
 		`bad attribute name`:        "injected3",
@@ -144,8 +150,8 @@ func TestDynamicAttributeValidation(t *testing.T) {
 		t.Fatalf("RenderString failed: %v", err)
 	}
 
-	if strings.Contains(out, "onmouseover") || strings.Contains(out, "onclick") || strings.Contains(out, "alert(1)") {
-		t.Fatalf("Attribute injection successful! Output: %s", out)
+	if strings.Contains(out, "onmouseover") || strings.Contains(out, "onclick") || strings.Contains(out, "alert") || strings.Contains(out, "onerror") || strings.Contains(out, "onload") || strings.Contains(out, "onfocus") {
+		t.Fatalf("Attribute or event handler injection successful! Output: %s", out)
 	}
 	if !strings.Contains(out, `valid-id="my-button"`) || !strings.Contains(out, `data-info="safe"`) {
 		t.Fatalf("Expected valid attributes to be preserved, got: %s", out)
