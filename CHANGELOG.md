@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-11-03
+
+### Performance Optimizations
+- **Compiled Expression AST**: Introduced thread-safe expression AST parsing and compilation (`expr.Expr`) with caching and pooled evaluation contexts (`sync.Pool`), eliminating redundant token parsing during runtime render loops.
+- **Fast-Path Zero-Allocation Escaping**: Implemented sensitive character byte scanning (`strings.IndexAny`) in `EscapeHTML` and `EscapeAttribute` to bypass heap allocations for plain text.
+- **Direct Writer Streaming**: Replaced all `fmt.Fprintf` calls in `renderElement` with zero-allocation direct string/slice writes (`io.WriteString`) and fast primitive formatting (`strconv`).
+- **Loop Sub-Scope Recycling**: Recycled `Scope` instances in `<each>` loop iterations using `sync.Pool`, significantly reducing GC pressure on large tables.
+
+## [1.0.1] - 2026-11-03
+
+### Fixed
+- Fixed documentation links, module path consistency, and reflected dynamic map/struct lookups in runtime scope.
+
 ## [1.0.0] - 2026-11-02
 
 ### Added

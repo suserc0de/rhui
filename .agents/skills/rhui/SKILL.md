@@ -17,8 +17,10 @@ This skill guides AI agents and developers in building high-performance, secure,
 ## 1. Core Architecture & Mental Model
 
 RHUI compiles declarative HTML-like component templates (`.rhui`) into pre-parsed immutable Abstract Syntax Trees (AST). At runtime:
-- **Zero Allocations**: Employs a concurrent `sync.Pool` buffer recycler to eliminate runtime heap allocations.
-- **Contextual Auto-Escaping**: Context-aware escaping prevents XSS across HTML bodies, quoted attributes, and URL protocols (`javascript:` pseudo-protocols are blocked).
+- **Compiled Expression AST**: Dynamic expressions (`{{ ... }}`, `:attr="..."`, `<if test="...">`) are compiled into AST nodes with thread-safe caching and pooled evaluation contexts (`sync.Pool`).
+- **Zero-Allocation Fast-Path Escaping**: Context-aware escaping scans for sensitive characters (`&<>"'`) before copying; plain text returns 0 heap allocations.
+- **Direct Writer Streaming**: Serializes elements via direct `io.WriteString` and `strconv` without `fmt.Fprintf` reflection bottlenecks.
+- **Sub-Scope Recycling**: Loop and component scopes are recycled via `sync.Pool`, eliminating garbage collector pressure on large tables.
 - **No Node.js / JavaScript Build Step**: Pure Go runtime execution. Reactivity is achieved seamlessly via HTMX fragments and Server-Sent Events (SSE).
 
 ---
