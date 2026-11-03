@@ -149,12 +149,16 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 			if attrName == "attrs" {
 				if m, ok := val.(map[string]any); ok {
 					for k, v := range m {
+						// Security Hardening: Validate dynamic attribute name
+						if !IsValidAttributeName(k) {
+							continue
+						}
 						if b, isBool := v.(bool); isBool {
 							if b {
 								if _, err := io.WriteString(w, " "); err != nil {
 									return err
 								}
-								if _, err := io.WriteString(w, EscapeHTML(k)); err != nil {
+								if _, err := io.WriteString(w, k); err != nil {
 									return err
 								}
 							}
@@ -168,7 +172,7 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 							if _, err := io.WriteString(w, " "); err != nil {
 								return err
 							}
-							if _, err := io.WriteString(w, EscapeHTML(k)); err != nil {
+							if _, err := io.WriteString(w, k); err != nil {
 								return err
 							}
 							if _, err := io.WriteString(w, "=\""); err != nil {

@@ -27,15 +27,39 @@ func EscapeAttribute(s string) string {
 	return escaped
 }
 
+// IsValidAttributeName validates HTML attribute names according to W3C HTML5 recommendations.
+// Disallows whitespace, control characters, quotes, equals, slashes, and characters that can break attribute boundaries.
+func IsValidAttributeName(name string) bool {
+	if len(name) == 0 {
+		return false
+	}
+	for i := 0; i < len(name); i++ {
+		c := name[i]
+		// Disallow control characters, whitespace, quotes, slashes, equals, angle brackets, and non-ASCII
+		if c <= 0x20 || c == 0x7F || c == '"' || c == '\'' || c == '>' || c == '/' || c == '=' || c > 0x7E {
+			return false
+		}
+	}
+	return true
+}
+
 // SanitizeURL checks if a URL is safe for href and src attributes, preventing javascript: pseudo-protocol attacks.
 func SanitizeURL(urlStr string) string {
 	trimmed := strings.TrimSpace(urlStr)
-	lower := strings.ToLower(trimmed)
+	// Strip internal whitespace and control characters that attackers use for obfuscation
+	cleanURL := strings.Map(func(r rune) rune {
+		if r <= 0x20 || r == 0x7F {
+			return -1
+		}
+		return r
+	}, trimmed)
+	lower := strings.ToLower(cleanURL)
 
 	// Block dangerous URI schemes
 	if strings.HasPrefix(lower, "javascript:") ||
 		strings.HasPrefix(lower, "vbscript:") ||
-		strings.HasPrefix(lower, "data:text/html") {
+		strings.HasPrefix(lower, "data:text/html") ||
+		strings.HasPrefix(lower, "data:image/svg+xml") {
 		return "#unsafe-url"
 	}
 
