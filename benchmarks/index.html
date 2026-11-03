@@ -211,24 +211,59 @@
                   <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2"></span>
                   <strong>RHUI BenchmarkEngineRender</strong>
                 </td>
-                <td class="p-3.5 text-brand-300 text-xs">Page View + Cached AST + sync.Pool</td>
-                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">3,039 ns</td>
-                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">721 B</td>
-                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">14</td>
+                <td class="p-3.5 text-brand-300 text-xs">Single Component (v1.0.3 Embedded AST)</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">1,291 ns</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">368 B</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">11</td>
               </tr>
               <tr>
-                <td class="p-3.5 text-white font-medium">RHUI BenchmarkRHUI_Render (v1.0.2)</td>
-                <td class="p-3.5 text-emerald-300 text-xs">Complex 50-row Table + Expression AST + Filters</td>
-                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">319,732 ns</td>
-                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">35,040 B</td>
-                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">3,294</td>
+                <td class="p-3.5 text-white font-medium">RHUI Nested Components Tree</td>
+                <td class="p-3.5 text-brand-300 text-xs">Layout + Navbar + Card (5 Slots) + Buttons</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">7,478 ns</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">1,827 B</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">168</td>
               </tr>
               <tr>
-                <td class="p-3.5 text-white font-medium">html/template Stdlib</td>
-                <td class="p-3.5 text-slate-400 text-xs">Complex 50-row Table with Conditions</td>
-                <td class="p-3.5 text-right font-mono text-slate-300">337,935 ns</td>
-                <td class="p-3.5 text-right font-mono text-slate-300">19,489 B</td>
+                <td class="p-3.5 text-white font-medium">RHUI Table (50 Rows + Filters)</td>
+                <td class="p-3.5 text-emerald-300 text-xs">50 Items + rupiah filter + logic</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">163,308 ns</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">34,691 B</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">3,291</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 text-white font-medium">html/template Stdlib (50 Rows)</td>
+                <td class="p-3.5 text-slate-400 text-xs">50 Items with range & conditionals</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">169,937 ns</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">19,482 B</td>
                 <td class="p-3.5 text-right font-mono text-slate-300">1,003</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 text-white font-medium">RHUI Table (100 Rows)</td>
+                <td class="p-3.5 text-emerald-300 text-xs">100 Items + currency formatting</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">317,207 ns</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">68,963 B</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">6,542</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 text-white font-medium">html/template Stdlib (100 Rows)</td>
+                <td class="p-3.5 text-slate-400 text-xs">100 Items with range</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">336,758 ns</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">38,710 B</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">2,003</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 text-white font-medium">RHUI Table (1,000 Rows)</td>
+                <td class="p-3.5 text-emerald-300 text-xs">Large 1,000 Data Rows Rendering</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">3,196,983 ns</td>
+                <td class="p-3.5 text-right font-mono text-emerald-400 font-bold">704,819 B</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">67,433</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 text-white font-medium">html/template Stdlib (1,000 Rows)</td>
+                <td class="p-3.5 text-slate-400 text-xs">Large 1,000 Data Rows Rendering</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">3,475,912 ns</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">392,030 B</td>
+                <td class="p-3.5 text-right font-mono text-slate-300">20,747</td>
               </tr>
             </tbody>
           </table>
@@ -238,18 +273,18 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
           <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-center">
             <span class="text-xs uppercase text-slate-500 font-semibold">Single Component Render</span>
-            <div class="text-3xl font-extrabold text-emerald-400 font-mono mt-1">1.88 µs</div>
+            <div class="text-3xl font-extrabold text-emerald-400 font-mono mt-1">1.29 µs</div>
             <span class="text-xs text-slate-400 mt-1 block">Sub-2-microsecond execution</span>
           </div>
           <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-center">
             <span class="text-xs uppercase text-slate-500 font-semibold">Memory Allocated Per Op</span>
-            <div class="text-3xl font-extrabold text-brand-400 font-mono mt-1">747 B</div>
-            <span class="text-xs text-slate-400 mt-1 block">Minimal GC footprint</span>
+            <div class="text-3xl font-extrabold text-brand-400 font-mono mt-1">368 B</div>
+            <span class="text-xs text-slate-400 mt-1 block">11 allocs/op</span>
           </div>
           <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-center">
-            <span class="text-xs uppercase text-slate-500 font-semibold">Ops per Second</span>
-            <div class="text-3xl font-extrabold text-purple-400 font-mono mt-1">650,000+</div>
-            <span class="text-xs text-slate-400 mt-1 block">Pure Go AST evaluation</span>
+            <span class="text-xs uppercase text-slate-500 font-semibold">Concurrent Throughput</span>
+            <div class="text-3xl font-extrabold text-purple-400 font-mono mt-1">50,000+ RPS</div>
+            <span class="text-xs text-slate-400 mt-1 block">10k requests in 199ms</span>
           </div>
         </div>
       </section>
