@@ -36,6 +36,8 @@ With RHUI, you can organize your user interfaces into reusable components (`.rhu
 
 ## 📦 Installation
 
+Requires **Go 1.26+**.
+
 ```bash
 go get github.com/suserc0de/rhui
 ```
