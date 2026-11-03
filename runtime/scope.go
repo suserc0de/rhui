@@ -3,9 +3,18 @@ package runtime
 import (
 	"fmt"
 	"reflect"
+	"sync"
 )
 
-// Value represents a generic evaluated value in the template scope.
+var scopePool = sync.Pool{
+	New: func() any {
+		return &Scope{
+			values: make(map[string]any, 8),
+		}
+	},
+}
+
+// Scope represents a generic evaluated value in the template scope.
 type Scope struct {
 	parent *Scope
 	values map[string]any
@@ -13,9 +22,7 @@ type Scope struct {
 
 // NewScope creates a new root data scope.
 func NewScope(data any) *Scope {
-	s := &Scope{
-		values: make(map[string]any),
-	}
+	s := acquireScope(nil)
 	if data == nil {
 		return s
 	}
@@ -37,12 +44,30 @@ func NewScope(data any) *Scope {
 	return s
 }
 
+func acquireScope(parent *Scope) *Scope {
+	s := scopePool.Get().(*Scope)
+	s.parent = parent
+	for k := range s.values {
+		delete(s.values, k)
+	}
+	return s
+}
+
+// ReleaseScope returns a Scope to the pool.
+func ReleaseScope(s *Scope) {
+	if s == nil {
+		return
+	}
+	s.parent = nil
+	if len(s.values) > 64 {
+		return
+	}
+	scopePool.Put(s)
+}
+
 // SubScope creates a child scope for local variables (e.g. loops or slot scopes).
 func (s *Scope) SubScope() *Scope {
-	return &Scope{
-		parent: s,
-		values: make(map[string]any),
-	}
+	return acquireScope(s)
 }
 
 // Set sets a variable in the current local scope.
@@ -59,4 +84,9 @@ func (s *Scope) Get(key string) (any, bool) {
 		return s.parent.Get(key)
 	}
 	return nil, false
+}
+
+// Parent returns the parent scope.
+func (s *Scope) Parent() *Scope {
+	return s.parent
 }

@@ -6,12 +6,20 @@ import (
 )
 
 // EscapeHTML escapes standard HTML special characters (&, <, >, ", ').
+// Fast path: returns original string with 0 allocations if no escaping is needed.
 func EscapeHTML(s string) string {
+	if strings.IndexAny(s, "&<>'\"") == -1 {
+		return s
+	}
 	return html.EscapeString(s)
 }
 
 // EscapeAttribute escapes HTML attribute values preventing quote breakouts and event injections.
+// Fast path: returns original string with 0 allocations if no quotes or sensitive characters exist.
 func EscapeAttribute(s string) string {
+	if strings.IndexAny(s, "&<>'\"") == -1 {
+		return s
+	}
 	escaped := html.EscapeString(s)
 	// Extra safety replacement for attribute delimiters
 	escaped = strings.ReplaceAll(escaped, `"`, "&#34;")
