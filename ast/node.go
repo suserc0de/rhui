@@ -7,10 +7,11 @@ type Node interface {
 
 // Attribute represents an HTML attribute or a component prop.
 type Attribute struct {
-	Name     string   // e.g. "class", ":disabled", "variant"
-	Value    string   // e.g. "btn", "User.IsActive", "primary"
-	IsColon  bool     // true if binding with ':' e.g. :disabled="expr"
-	Pos      Position
+	Name         string   // e.g. "class", ":disabled", "variant"
+	Value        string   // e.g. "btn", "User.IsActive", "primary"
+	IsColon      bool     // true if binding with ':' e.g. :disabled="expr"
+	CompiledExpr any      // Pre-compiled expression AST
+	Pos          Position
 }
 
 // RootNode is the top-level container of a template AST.
@@ -39,8 +40,9 @@ func (n *CommentNode) Position() Position { return n.Pos }
 
 // InterpolationNode represents a dynamic expression interpolation {{ ... }}.
 type InterpolationNode struct {
-	Expression string
-	Pos        Position
+	Expression   string
+	CompiledExpr any // Pre-compiled expression AST
+	Pos          Position
 }
 
 func (n *InterpolationNode) Position() Position { return n.Pos }
@@ -97,21 +99,23 @@ func (n *SlotNode) Position() Position { return n.Pos }
 
 // IfNode represents a conditional block <if test="..."> ... </if> <else> ... </else>.
 type IfNode struct {
-	Condition string
-	Then      []Node
-	Else      []Node
-	Pos       Position
+	Condition    string
+	CompiledExpr any // Pre-compiled expression AST
+	Then         []Node
+	Else         []Node
+	Pos          Position
 }
 
 func (n *IfNode) Position() Position { return n.Pos }
 
 // EachNode represents an iteration block <each items="..." as="..."> ... </each>.
 type EachNode struct {
-	Items string // expression for items, e.g. "Users"
-	As    string // item variable name, e.g. "user"
-	Index string // optional index variable name, e.g. "idx"
-	Body  []Node
-	Pos   Position
+	Items        string // expression for items, e.g. "Users"
+	CompiledExpr any    // Pre-compiled expression AST
+	As           string // item variable name, e.g. "user"
+	Index        string // optional index variable name, e.g. "idx"
+	Body         []Node
+	Pos          Position
 }
 
 func (n *EachNode) Position() Position { return n.Pos }

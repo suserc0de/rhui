@@ -4,7 +4,7 @@
   <a href="https://github.com/suserc0de/rhui/actions"><img src="https://img.shields.io/github/actions/workflow/status/suserc0de/rhui/ci.yml?branch=master&style=flat-square&logo=github&label=CI" alt="CI Status" /></a>
   <a href="https://pkg.go.dev/github.com/suserc0de/rhui"><img src="https://img.shields.io/badge/Go-Reference-007d9c?style=flat-square&logo=go&logoColor=white" alt="Go Reference" /></a>
   <a href="https://goreportcard.com/report/github.com/suserc0de/rhui"><img src="https://img.shields.io/badge/Go%20Report-A%2B-brightgreen?style=flat-square" alt="Go Report Card" /></a>
-  <a href="https://github.com/suserc0de/rhui/releases"><img src="https://img.shields.io/badge/Release-v1.0.2-blue?style=flat-square" alt="Latest Release" /></a>
+  <a href="https://github.com/suserc0de/rhui/releases"><img src="https://img.shields.io/badge/Release-v1.0.3-blue?style=flat-square" alt="Latest Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
 </p>
 
@@ -29,8 +29,8 @@ With RHUI, you can organize your user interfaces into reusable components (`.rhu
 - **🛡️ Safe by Default:** Contextual HTML escaping and a sandboxed expression evaluator with strict allowlists (no arbitrary code execution).
 - **📡 Event-Driven & Realtime SSE:** Native Server-Sent Events package (`rhui/sse`) to stream live rendered component updates directly to browsers (seamless with HTMX SSE and Datastar).
 - **🔌 Multi-Framework Support:** Official adapters for **Gin**, **Echo**, **Fiber**, and standard `net/http` / **Chi**.
-- **🌊 Low Heap Allocations:** Pre-compiled expression AST caching, pooled evaluation contexts, zero-allocation fast-path escaper, and sub-scope recycling with `sync.Pool`.
-- **⚡ Supercharged Engine Speed:** Sub-microsecond single component render (~3,000 ns) and outperforms `html/template` on complex loop tables.
+- **🌊 Low Heap Allocations:** Compile-time AST expression embedding, zero runtime lock contention, zero-allocation fast-path escaper, and sub-scope recycling with `sync.Pool`.
+- **⚡ Supercharged Engine Speed:** Sub-microsecond single component render (~1,290 ns), sub-8µs nested components, and consistently beats `html/template` across 50, 100, and 1,000 row tables.
 
 ---
 

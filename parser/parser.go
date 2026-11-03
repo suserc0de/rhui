@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/suserc0de/rhui/ast"
+	"github.com/suserc0de/rhui/expr"
 )
 
 // Parser parses a stream of tokens into an AST.
@@ -81,6 +82,9 @@ func (p *Parser) parseNode() ast.Node {
 		interp := &ast.InterpolationNode{
 			Expression: p.curToken.Value,
 			Pos:        p.curToken.Pos,
+		}
+		if compiled, err := expr.Parse(p.curToken.Value); err == nil {
+			interp.CompiledExpr = compiled
 		}
 		p.nextToken()
 		return interp
@@ -202,11 +206,16 @@ func (p *Parser) parseAttributes() ([]ast.Attribute, bool) {
 					p.nextToken()
 				}
 			}
+			var compiled expr.Expr
+			if val != "" {
+				compiled, _ = expr.Parse(val)
+			}
 			attrs = append(attrs, ast.Attribute{
-				Name:    attrName,
-				Value:   val,
-				IsColon: true,
-				Pos:     pos,
+				Name:         attrName,
+				Value:        val,
+				IsColon:      true,
+				CompiledExpr: compiled,
+				Pos:          pos,
 			})
 
 		case TokenIdent, TokenAttrIdent:
@@ -257,6 +266,11 @@ func (p *Parser) parseIf(pos ast.Position) *ast.IfNode {
 	ifNode := &ast.IfNode{
 		Condition: condition,
 		Pos:       pos,
+	}
+	if condition != "" {
+		if compiled, err := expr.Parse(condition); err == nil {
+			ifNode.CompiledExpr = compiled
+		}
 	}
 
 	for p.curToken.Type != TokenEOF {
@@ -328,6 +342,11 @@ func (p *Parser) parseEach(pos ast.Position) *ast.EachNode {
 		switch attr.Name {
 		case "items":
 			eachNode.Items = attr.Value
+			if attr.Value != "" {
+				if compiled, err := expr.Parse(attr.Value); err == nil {
+					eachNode.CompiledExpr = compiled
+				}
+			}
 		case "as":
 			eachNode.As = attr.Value
 		case "index":

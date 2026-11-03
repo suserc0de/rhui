@@ -9,6 +9,7 @@ import (
 
 	"github.com/suserc0de/rhui/ast"
 	"github.com/suserc0de/rhui/compiler"
+	"github.com/suserc0de/rhui/expr"
 )
 
 func fastFormatValue(val any) string {
@@ -77,7 +78,17 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, scope *Scope) error {
 		return err
 
 	case *ast.InterpolationNode:
-		val, err := r.evaluator.Eval(n.Expression, scope)
+		var val any
+		var err error
+		if n.CompiledExpr != nil {
+			if ce, ok := n.CompiledExpr.(expr.Expr); ok {
+				val, err = r.evaluator.EvalCompiled(ce, scope)
+			} else {
+				val, err = r.evaluator.Eval(n.Expression, scope)
+			}
+		} else {
+			val, err = r.evaluator.Eval(n.Expression, scope)
+		}
 		if err != nil {
 			return err
 		}
@@ -100,7 +111,17 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, scope *Scope) error {
 		return r.renderSlot(w, n, scope)
 
 	case *ast.IfNode:
-		cond, err := r.evaluator.EvalBool(n.Condition, scope)
+		var cond bool
+		var err error
+		if n.CompiledExpr != nil {
+			if ce, ok := n.CompiledExpr.(expr.Expr); ok {
+				cond, err = r.evaluator.EvalBoolCompiled(ce, scope)
+			} else {
+				cond, err = r.evaluator.EvalBool(n.Condition, scope)
+			}
+		} else {
+			cond, err = r.evaluator.EvalBool(n.Condition, scope)
+		}
 		if err != nil {
 			return err
 		}
@@ -139,7 +160,17 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 	for _, attr := range elem.Attributes {
 		if attr.IsColon {
 			// Dynamic expression binding: e.g. :disabled="false" or :attrs="myAttrs"
-			val, err := r.evaluator.Eval(attr.Value, scope)
+			var val any
+			var err error
+			if attr.CompiledExpr != nil {
+				if ce, ok := attr.CompiledExpr.(expr.Expr); ok {
+					val, err = r.evaluator.EvalCompiled(ce, scope)
+				} else {
+					val, err = r.evaluator.Eval(attr.Value, scope)
+				}
+			} else {
+				val, err = r.evaluator.Eval(attr.Value, scope)
+			}
 			if err != nil {
 				return err
 			}
@@ -149,12 +180,16 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 			if attrName == "attrs" {
 				if m, ok := val.(map[string]any); ok {
 					for k, v := range m {
+						// Security Hardening: Validate dynamic attribute name
+						if !IsValidAttributeName(k) {
+							continue
+						}
 						if b, isBool := v.(bool); isBool {
 							if b {
 								if _, err := io.WriteString(w, " "); err != nil {
 									return err
 								}
-								if _, err := io.WriteString(w, EscapeHTML(k)); err != nil {
+								if _, err := io.WriteString(w, k); err != nil {
 									return err
 								}
 							}
@@ -168,7 +203,7 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 							if _, err := io.WriteString(w, " "); err != nil {
 								return err
 							}
-							if _, err := io.WriteString(w, EscapeHTML(k)); err != nil {
+							if _, err := io.WriteString(w, k); err != nil {
 								return err
 							}
 							if _, err := io.WriteString(w, "=\""); err != nil {
@@ -300,6 +335,7 @@ func (r *Renderer) renderComponent(w io.Writer, comp *ast.ComponentNode, scope *
 
 	// Create an isolated subscope for this component invocation
 	compScope := NewScope(nil)
+	defer ReleaseScope(compScope)
 
 	// Populate props with default values
 	for _, propDef := range meta.Props {
@@ -317,7 +353,17 @@ func (r *Renderer) renderComponent(w io.Writer, comp *ast.ComponentNode, scope *
 
 		var propVal any
 		if isDynamic {
-			val, err := r.evaluator.Eval(attr.Value, scope)
+			var val any
+			var err error
+			if attr.CompiledExpr != nil {
+				if ce, ok := attr.CompiledExpr.(expr.Expr); ok {
+					val, err = r.evaluator.EvalCompiled(ce, scope)
+				} else {
+					val, err = r.evaluator.Eval(attr.Value, scope)
+				}
+			} else {
+				val, err = r.evaluator.Eval(attr.Value, scope)
+			}
 			if err != nil {
 				return err
 			}
@@ -393,7 +439,17 @@ func (r *Renderer) renderSlot(w io.Writer, slot *ast.SlotNode, compScope *Scope)
 }
 
 func (r *Renderer) renderEach(w io.Writer, each *ast.EachNode, scope *Scope) error {
-	itemsVal, err := r.evaluator.Eval(each.Items, scope)
+	var itemsVal any
+	var err error
+	if each.CompiledExpr != nil {
+		if ce, ok := each.CompiledExpr.(expr.Expr); ok {
+			itemsVal, err = r.evaluator.EvalCompiled(ce, scope)
+		} else {
+			itemsVal, err = r.evaluator.Eval(each.Items, scope)
+		}
+	} else {
+		itemsVal, err = r.evaluator.Eval(each.Items, scope)
+	}
 	if err != nil {
 		return err
 	}

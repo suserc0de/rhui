@@ -94,6 +94,10 @@ func TestOWASP_URLSanitization(t *testing.T) {
 		{input: "  javascript:evil()", isSafe: false},
 		{input: "vbscript:msgbox(1)", isSafe: false},
 		{input: "data:text/html,<script>alert(1)</script>", isSafe: false},
+		{input: "java\x00script:alert(1)", isSafe: false},
+		{input: "java\tscript:alert(1)", isSafe: false},
+		{input: "java\nscript:alert(1)", isSafe: false},
+		{input: "data:image/svg+xml;base64,PHN2Z...", isSafe: false},
 	}
 
 	for _, u := range urls {
@@ -101,10 +105,50 @@ func TestOWASP_URLSanitization(t *testing.T) {
 		if !u.isSafe {
 			if strings.HasPrefix(strings.ToLower(sanitized), "javascript:") ||
 				strings.HasPrefix(strings.ToLower(sanitized), "vbscript:") ||
-				strings.HasPrefix(strings.ToLower(sanitized), "data:text/html") {
-				t.Fatalf("Dangerous URL scheme allowed through: %s", sanitized)
+				strings.HasPrefix(strings.ToLower(sanitized), "data:") {
+				t.Fatalf("Dangerous URL scheme allowed through: %s (input: %q)", sanitized, u.input)
+			}
+			if sanitized != "#unsafe-url" && !strings.HasPrefix(sanitized, "#") {
+				t.Fatalf("Expected #unsafe-url for dangerous input %q, got: %q", u.input, sanitized)
 			}
 		}
+	}
+}
+
+// TestDynamicAttributeValidation ensures malicious attribute keys cannot perform injection
+func TestDynamicAttributeValidation(t *testing.T) {
+	engine, err := rhui.New()
+	if err != nil {
+		t.Fatalf("failed to create engine: %v", err)
+	}
+
+	tmpl := `<button :attrs="Attrs">Click</button>`
+	if err := engine.ParseTemplate("button_test", tmpl); err != nil {
+		t.Fatalf("ParseTemplate failed: %v", err)
+	}
+
+	dangerousAttrs := map[string]any{
+		`valid-id`:                  "my-button",
+		`data-info`:                 "safe",
+		`foo" onmouseover="alert(1)`: "injected",
+		`test'onclick='evil()`:      "injected2",
+		`bad attribute name`:        "injected3",
+		`invalid/slash`:             "injected4",
+		`invalid>tag`:               "injected5",
+	}
+
+	out, err := engine.RenderString("button_test", map[string]any{
+		"Attrs": dangerousAttrs,
+	})
+	if err != nil {
+		t.Fatalf("RenderString failed: %v", err)
+	}
+
+	if strings.Contains(out, "onmouseover") || strings.Contains(out, "onclick") || strings.Contains(out, "alert(1)") {
+		t.Fatalf("Attribute injection successful! Output: %s", out)
+	}
+	if !strings.Contains(out, `valid-id="my-button"`) || !strings.Contains(out, `data-info="safe"`) {
+		t.Fatalf("Expected valid attributes to be preserved, got: %s", out)
 	}
 }
 
