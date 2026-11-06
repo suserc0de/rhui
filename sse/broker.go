@@ -4,10 +4,21 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/suserc0de/rhui"
 )
+
+// BrokerOption defines functional configurations for an SSE Broker.
+type BrokerOption func(*Broker)
+
+// WithAllowedOrigin configures the Access-Control-Allow-Origin header for SSE streams.
+func WithAllowedOrigin(origin string) BrokerOption {
+	return func(b *Broker) {
+		b.allowedOrigin = origin
+	}
+}
 
 // EventOptions specifies metadata for an SSE message.
 type EventOptions struct {
@@ -23,20 +34,25 @@ type Client struct {
 
 // Broker manages connected SSE clients and broadcasting.
 type Broker struct {
-	clients    map[string]*Client
-	register   chan *Client
-	unregister chan *Client
-	broadcast  chan []byte
-	mu         sync.RWMutex
+	clients       map[string]*Client
+	register      chan *Client
+	unregister    chan *Client
+	broadcast     chan []byte
+	allowedOrigin string
+	mu            sync.RWMutex
 }
 
 // NewBroker creates an active SSE Broker.
-func NewBroker() *Broker {
+func NewBroker(opts ...BrokerOption) *Broker {
 	b := &Broker{
-		clients:    make(map[string]*Client),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		broadcast:  make(chan []byte),
+		clients:       make(map[string]*Client),
+		register:      make(chan *Client),
+		unregister:    make(chan *Client),
+		broadcast:     make(chan []byte),
+		allowedOrigin: "*",
+	}
+	for _, opt := range opts {
+		opt(b)
 	}
 	go b.run()
 	return b
@@ -90,7 +106,9 @@ func (b *Broker) Connect(w http.ResponseWriter, r *http.Request) (*Stream, error
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	if b.allowedOrigin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", b.allowedOrigin)
+	}
 
 	client := &Client{
 		id:     fmt.Sprintf("%p", r),
@@ -132,13 +150,23 @@ func (b *Broker) BroadcastComponent(engine *rhui.Engine, compName string, data a
 	return nil
 }
 
+// sanitizeHeaderField removes CR and LF characters to prevent SSE Header/Event Injection attacks.
+func sanitizeHeaderField(val string) string {
+	val = strings.ReplaceAll(val, "\r", "")
+	val = strings.ReplaceAll(val, "\n", "")
+	return strings.TrimSpace(val)
+}
+
 func formatSSE(event, id, data string) string {
 	var sb bytes.Buffer
-	if event != "" {
-		sb.WriteString("event: " + event + "\n")
+	cleanEvent := sanitizeHeaderField(event)
+	cleanID := sanitizeHeaderField(id)
+
+	if cleanEvent != "" {
+		sb.WriteString("event: " + cleanEvent + "\n")
 	}
-	if id != "" {
-		sb.WriteString("id: " + id + "\n")
+	if cleanID != "" {
+		sb.WriteString("id: " + cleanID + "\n")
 	}
 	// Multi-line data handling
 	lines := bytes.Split([]byte(data), []byte("\n"))
