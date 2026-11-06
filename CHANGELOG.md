@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2026-11-06
+
+### Security Hardening (P0)
+- **Strict URL Scheme Allowlist**: Transitioned `SanitizeURL` from blocklisting to strict allowlisting (`http://`, `https://`, `mailto:`, `tel:`, `sms:`, and relative/fragment paths `#`, `/`, `./`, `../`, `?`). Neutralized all pseudo-protocols (`javascript:`, `vbscript:`, `data:`, `blob:`, `file:`) and protocol-relative schemes (`//`).
+- **SSE CRLF Header & Event Injection Neutralization**: Sanitized carriage return (`\r`) and newline (`\n`) characters in SSE `EventName` and `ID` to prevent event frame tampering.
+- **Configurable SSE CORS Origin**: Added `sse.WithAllowedOrigin` option to restrict Server-Sent Events stream origins instead of mandatory wildcard (`*`).
+
+### Engine Resilience & DoS Prevention (P0)
+- **Bounded LRU Expression Cache**: Replaced unbounded map with a high-performance, thread-safe LRU Cache (`expr.DefaultLRUCapacity = 4096`) for expression parsing, preventing memory exhaustion and OOM attacks.
+- **Configurable Component Recursion Guard**: Implemented recursion depth checking (`WithMaxRenderDepth`, default: 64) to prevent stack overflows and CPU starvation from circular component references.
+
 ## [1.0.4] - 2026-11-03
 
 ### Security (P0)

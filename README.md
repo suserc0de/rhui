@@ -4,7 +4,7 @@
   <a href="https://github.com/suserc0de/rhui/actions"><img src="https://img.shields.io/github/actions/workflow/status/suserc0de/rhui/ci.yml?branch=master&style=flat-square&logo=github&label=CI" alt="CI Status" /></a>
   <a href="https://pkg.go.dev/github.com/suserc0de/rhui"><img src="https://img.shields.io/badge/Go-Reference-007d9c?style=flat-square&logo=go&logoColor=white" alt="Go Reference" /></a>
   <a href="https://goreportcard.com/report/github.com/suserc0de/rhui"><img src="https://img.shields.io/badge/Go%20Report-A%2B-brightgreen?style=flat-square" alt="Go Report Card" /></a>
-  <a href="https://github.com/suserc0de/rhui/releases"><img src="https://img.shields.io/badge/Release-v1.0.4-blue?style=flat-square" alt="Latest Release" /></a>
+  <a href="https://github.com/suserc0de/rhui/releases"><img src="https://img.shields.io/badge/Release-v1.0.5-blue?style=flat-square" alt="Latest Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
 </p>
 
@@ -26,8 +26,8 @@ With RHUI, you can organize your user interfaces into reusable components (`.rhu
 - **🧩 Declarative Reusable Components:** Write components like `<ui:Card>`, `<ui:Button>`, and layouts with clean HTML syntax.
 - **⚡ Zero Build Step:** Templates are parsed and compiled in-memory during application startup. No `go generate` or CLI transpile step required.
 - **🏷️ Signature `.rhui` Extension:** Completely distinct from Go's standard `html/template` (`.tmpl`), preventing editor lint conflicts while remaining 100% compatible with HTML tooling.
-- **🛡️ Safe by Default:** Contextual HTML escaping, automatic inline event handler blocking (`onclick`, `onerror`, `onload` blocked on `:attrs`), and a sandboxed expression evaluator with strict allowlists.
-- **📡 Event-Driven & Realtime SSE:** Native Server-Sent Events package (`rhui/sse`) to stream live rendered component updates directly to browsers (seamless with HTMX SSE and Datastar).
+- **🛡️ Safe & Resilient by Default:** Contextual HTML escaping, strict URL scheme allowlist, inline event handler blocking (`onclick`, `onerror` blocked on `:attrs`), recursion depth limits against circular stack overflow, and thread-safe bounded LRU caching against memory exhaustion.
+- **📡 Event-Driven & Realtime SSE:** Native Server-Sent Events package (`rhui/sse`) with CRLF sanitization and configurable CORS origin to stream live rendered component updates directly to browsers.
 - **🔌 Multi-Framework Support:** Official adapters for **Gin**, **Echo**, **Fiber**, and standard `net/http` / **Chi**.
 - **🌊 Low Heap Allocations:** Compile-time AST expression embedding, zero runtime lock contention via atomic engine snapshots, zero-allocation fast-path escaper, and sub-scope recycling with `sync.Pool`.
 - **⚡ Supercharged Engine Speed:** Sub-microsecond single component render (~1,290 ns), sub-8µs nested components, and consistently beats `html/template` across 50, 100, and 1,000 row tables.
