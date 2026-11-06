@@ -51,9 +51,17 @@ func IsValidAttributeName(name string) bool {
 	return true
 }
 
-// SanitizeURL checks if a URL is safe for href and src attributes, preventing javascript: pseudo-protocol attacks.
+// SanitizeURL validates and sanitizes URLs for href and src attributes.
+// Security: Uses a strict allowlist approach. Only safe schemes (http, https, mailto, tel, sms)
+// and relative/fragment URLs (#, /, ./, ../, ?) are allowed.
+// All pseudo-protocols (javascript:, vbscript:, data:, blob:, file:) and protocol-relative URLs (//)
+// are strictly neutralized to prevent XSS and open redirect vectors.
 func SanitizeURL(urlStr string) string {
 	trimmed := strings.TrimSpace(urlStr)
+	if trimmed == "" {
+		return ""
+	}
+
 	// Strip internal whitespace and control characters that attackers use for obfuscation
 	cleanURL := strings.Map(func(r rune) rune {
 		if r <= 0x20 || r == 0x7F {
@@ -61,15 +69,42 @@ func SanitizeURL(urlStr string) string {
 		}
 		return r
 	}, trimmed)
-	lower := strings.ToLower(cleanURL)
 
-	// Block dangerous URI schemes
-	if strings.HasPrefix(lower, "javascript:") ||
-		strings.HasPrefix(lower, "vbscript:") ||
-		strings.HasPrefix(lower, "data:text/html") ||
-		strings.HasPrefix(lower, "data:image/svg+xml") {
+	if cleanURL == "" {
 		return "#unsafe-url"
 	}
 
+	// Reject protocol-relative URLs (e.g. "//evil.com") which can lead to open redirects or unexpected protocol inheritances
+	if strings.HasPrefix(cleanURL, "//") {
+		return "#unsafe-url"
+	}
+
+	// Safe relative paths and fragments
+	if strings.HasPrefix(cleanURL, "/") ||
+		strings.HasPrefix(cleanURL, "#") ||
+		strings.HasPrefix(cleanURL, "./") ||
+		strings.HasPrefix(cleanURL, "../") ||
+		strings.HasPrefix(cleanURL, "?") {
+		return EscapeHTML(trimmed)
+	}
+
+	lower := strings.ToLower(cleanURL)
+
+	// Safe scheme allowlist
+	if strings.HasPrefix(lower, "http://") ||
+		strings.HasPrefix(lower, "https://") ||
+		strings.HasPrefix(lower, "mailto:") ||
+		strings.HasPrefix(lower, "tel:") ||
+		strings.HasPrefix(lower, "sms:") {
+		return EscapeHTML(trimmed)
+	}
+
+	// If the URL contains a colon before any path separator, it is an untrusted or dangerous scheme (e.g., javascript:, data:, vbscript:, file:, blob:)
+	colonIdx := strings.IndexByte(lower, ':')
+	if colonIdx != -1 {
+		return "#unsafe-url"
+	}
+
+	// Standard relative path without leading slash (e.g. "profile/view", "image.png")
 	return EscapeHTML(trimmed)
 }

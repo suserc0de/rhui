@@ -88,16 +88,29 @@ func TestOWASP_URLSanitization(t *testing.T) {
 		isSafe bool
 	}{
 		{input: "https://example.com/profile", isSafe: true},
+		{input: "http://example.com/test?a=1&b=2", isSafe: true},
 		{input: "/dashboard/metrics", isSafe: true},
+		{input: "./avatar.png", isSafe: true},
+		{input: "../common/style.css", isSafe: true},
+		{input: "#section-heading", isSafe: true},
+		{input: "?page=2", isSafe: true},
+		{input: "mailto:support@rhui.dev", isSafe: true},
+		{input: "tel:+123456789", isSafe: true},
+		{input: "profile/avatar.png", isSafe: true},
 		{input: "javascript:alert(1)", isSafe: false},
 		{input: "JAVASCRIPT:alert(document.domain)", isSafe: false},
 		{input: "  javascript:evil()", isSafe: false},
 		{input: "vbscript:msgbox(1)", isSafe: false},
 		{input: "data:text/html,<script>alert(1)</script>", isSafe: false},
+		{input: "data:text/javascript,alert(1)", isSafe: false},
+		{input: "data:image/svg+xml;base64,PHN2Z...", isSafe: false},
+		{input: "blob:https://example.com/uuid", isSafe: false},
+		{input: "file:///etc/passwd", isSafe: false},
+		{input: "//evil.com/phishing", isSafe: false},
 		{input: "java\x00script:alert(1)", isSafe: false},
 		{input: "java\tscript:alert(1)", isSafe: false},
 		{input: "java\nscript:alert(1)", isSafe: false},
-		{input: "data:image/svg+xml;base64,PHN2Z...", isSafe: false},
+		{input: "java\rscript:alert(1)", isSafe: false},
 	}
 
 	for _, u := range urls {
@@ -105,11 +118,18 @@ func TestOWASP_URLSanitization(t *testing.T) {
 		if !u.isSafe {
 			if strings.HasPrefix(strings.ToLower(sanitized), "javascript:") ||
 				strings.HasPrefix(strings.ToLower(sanitized), "vbscript:") ||
-				strings.HasPrefix(strings.ToLower(sanitized), "data:") {
+				strings.HasPrefix(strings.ToLower(sanitized), "data:") ||
+				strings.HasPrefix(strings.ToLower(sanitized), "blob:") ||
+				strings.HasPrefix(strings.ToLower(sanitized), "file:") ||
+				strings.HasPrefix(sanitized, "//") {
 				t.Fatalf("Dangerous URL scheme allowed through: %s (input: %q)", sanitized, u.input)
 			}
-			if sanitized != "#unsafe-url" && !strings.HasPrefix(sanitized, "#") {
+			if sanitized != "#unsafe-url" {
 				t.Fatalf("Expected #unsafe-url for dangerous input %q, got: %q", u.input, sanitized)
+			}
+		} else {
+			if sanitized == "#unsafe-url" {
+				t.Fatalf("Safe URL incorrectly flagged as unsafe: %q", u.input)
 			}
 		}
 	}
