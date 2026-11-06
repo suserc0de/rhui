@@ -1,0 +1,71 @@
+{
+  "RHUI Component Definition": {
+    "prefix": "rhui-component",
+    "body": [
+      "<component name=\"${1:ComponentName}\">",
+      "  <props ${2:title}=\"${3:default}\" />",
+      "",
+      "  <div class=\"${4:container}\">",
+      "    <h3>{{ ${2:title} }}</h3>",
+      "    <slot>${5:Default content}</slot>",
+      "  </div>",
+      "</component>"
+    ],
+    "description": "Scaffold a new RHUI reusable component"
+  },
+  "RHUI If Directive": {
+    "prefix": "rhui-if",
+    "body": [
+      "<if test=\"${1:condition}\">",
+      "  ${2:<div>Content</div>}",
+      "</if>"
+    ],
+    "description": "RHUI conditional block"
+  },
+  "RHUI If-Else Directive": {
+    "prefix": "rhui-ifelse",
+    "body": [
+      "<if test=\"${1:condition}\">",
+      "  ${2:<div>Then</div>}",
+      "</if>",
+      "<else>",
+      "  ${3:<div>Else</div>}",
+      "</else>"
+    ],
+    "description": "RHUI if/else conditional block"
+  },
+  "RHUI Each Loop": {
+    "prefix": "rhui-each",
+    "body": [
+      "<each in=\"${1:items}\" as=\"${2:item}\">",
+      "  <div key=\"{{ loop.index }}\">{{ ${2:item} }}</div>",
+      "</each>"
+    ],
+    "description": "RHUI iteration loop with loop context"
+  },
+  "RHUI Component Invocation": {
+    "prefix": "rhui-ui",
+    "body": [
+      "<ui:${1:Component} ${2:prop}=\"${3:value}\">",
+      "  ${4:Slot content}",
+      "</ui:${1:Component}>"
+    ],
+    "description": "Invoke a RHUI reusable component"
+  },
+  "RHUI Named Slot": {
+    "prefix": "rhui-slot-named",
+    "body": [
+      "<slot:${1:name} />"
+    ],
+    "description": "Project a named slot in a component definition"
+  },
+  "RHUI Slot Check": {
+    "prefix": "rhui-has-slot",
+    "body": [
+      "<if test=\"has_slot('${1:name}')\">",
+      "  <slot:${1:name} />",
+      "</if>"
+    ],
+    "description": "Conditional slot projection using has_slot builtin"
+  }
+}
