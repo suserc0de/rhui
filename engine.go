@@ -47,6 +47,13 @@ func WithDevMode(enabled bool) Option {
 	}
 }
 
+// WithMaxRenderDepth sets the maximum allowable recursion depth for nested component rendering.
+func WithMaxRenderDepth(depth int) Option {
+	return func(e *Engine) {
+		e.maxRenderDepth = depth
+	}
+}
+
 // engineState holds an atomic, immutable snapshot of the compiled templates and renderer.
 type engineState struct {
 	templates map[string]*ast.RootNode
@@ -56,11 +63,12 @@ type engineState struct {
 
 // Engine represents the top-level RHUI template engine.
 type Engine struct {
-	dir       string
-	extension string
-	fsys      fs.FS
-	devMode   bool
-	loader    loader.Loader
+	dir            string
+	extension      string
+	fsys           fs.FS
+	devMode        bool
+	maxRenderDepth int
+	loader         loader.Loader
 
 	evaluator *runtime.Evaluator
 	state     atomic.Pointer[engineState]
@@ -70,22 +78,26 @@ type Engine struct {
 // New creates and initializes a new RHUI Engine.
 func New(opts ...Option) (*Engine, error) {
 	e := &Engine{
-		dir:       "templates",
-		extension: ".rhui",
-		evaluator: runtime.NewEvaluator(),
+		dir:            "templates",
+		extension:      ".rhui",
+		maxRenderDepth: runtime.DefaultMaxRenderDepth,
+		evaluator:      runtime.NewEvaluator(),
 	}
-
-	initialRegistry := compiler.NewRegistry()
-	initialState := &engineState{
-		templates: make(map[string]*ast.RootNode),
-		registry:  initialRegistry,
-		renderer:  runtime.NewRenderer(initialRegistry, e.evaluator),
-	}
-	e.state.Store(initialState)
 
 	for _, opt := range opts {
 		opt(e)
 	}
+
+	initialRegistry := compiler.NewRegistry()
+	initialRenderer := runtime.NewRenderer(initialRegistry, e.evaluator)
+	initialRenderer.SetMaxRenderDepth(e.maxRenderDepth)
+
+	initialState := &engineState{
+		templates: make(map[string]*ast.RootNode),
+		registry:  initialRegistry,
+		renderer:  initialRenderer,
+	}
+	e.state.Store(initialState)
 
 	// Configure appropriate Loader (embed.FS or Disk)
 	if e.fsys != nil {
@@ -172,10 +184,12 @@ func (e *Engine) Reload() error {
 		return err
 	}
 
+	newRenderer := runtime.NewRenderer(newRegistry, e.evaluator)
+	newRenderer.SetMaxRenderDepth(e.maxRenderDepth)
 	newState := &engineState{
 		templates: newTemplates,
 		registry:  newRegistry,
-		renderer:  runtime.NewRenderer(newRegistry, e.evaluator),
+		renderer:  newRenderer,
 	}
 	e.state.Store(newState)
 	return nil
@@ -344,10 +358,12 @@ func (e *Engine) ParseTemplate(name, content string) error {
 	}
 
 	newTemplates[filepath.Clean(name)] = root
+	newRenderer := runtime.NewRenderer(newRegistry, e.evaluator)
+	newRenderer.SetMaxRenderDepth(e.maxRenderDepth)
 	newState := &engineState{
 		templates: newTemplates,
 		registry:  newRegistry,
-		renderer:  runtime.NewRenderer(newRegistry, e.evaluator),
+		renderer:  newRenderer,
 	}
 	e.state.Store(newState)
 	return nil

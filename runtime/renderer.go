@@ -40,10 +40,14 @@ func fastFormatValue(val any) string {
 	}
 }
 
+// DefaultMaxRenderDepth defines the default maximum component nesting and recursion depth.
+const DefaultMaxRenderDepth = 64
+
 // Renderer renders AST nodes directly to an io.Writer.
 type Renderer struct {
-	registry  *compiler.Registry
-	evaluator *Evaluator
+	registry       *compiler.Registry
+	evaluator      *Evaluator
+	maxRenderDepth int
 }
 
 // NewRenderer creates a new Renderer instance.
@@ -52,9 +56,18 @@ func NewRenderer(registry *compiler.Registry, evaluator *Evaluator) *Renderer {
 		evaluator = NewEvaluator()
 	}
 	return &Renderer{
-		registry:  registry,
-		evaluator: evaluator,
+		registry:       registry,
+		evaluator:      evaluator,
+		maxRenderDepth: DefaultMaxRenderDepth,
 	}
+}
+
+// SetMaxRenderDepth sets the maximum allowable recursion depth for nested component rendering.
+func (r *Renderer) SetMaxRenderDepth(depth int) {
+	if depth <= 0 {
+		depth = DefaultMaxRenderDepth
+	}
+	r.maxRenderDepth = depth
 }
 
 // RenderNode renders any AST Node to w using the given Scope.
@@ -316,6 +329,17 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 }
 
 func (r *Renderer) renderComponent(w io.Writer, comp *ast.ComponentNode, scope *Scope) error {
+	// Guard against infinite recursive component rendering (Stack Overflow DoS)
+	depth := 0
+	if curDepth, ok := scope.Get("__render_depth__"); ok {
+		if d, ok := curDepth.(int); ok {
+			depth = d
+		}
+	}
+	if depth >= r.maxRenderDepth {
+		return fmt.Errorf("maximum component recursion depth (%d) exceeded in component %q", r.maxRenderDepth, comp.Name)
+	}
+
 	compName := comp.Name
 	// Strip "ui:" prefix if any for matching registry name
 	lookupName := strings.TrimPrefix(compName, "ui:")
@@ -336,6 +360,9 @@ func (r *Renderer) renderComponent(w io.Writer, comp *ast.ComponentNode, scope *
 	// Create an isolated subscope for this component invocation
 	compScope := NewScope(nil)
 	defer ReleaseScope(compScope)
+
+	// Propagate incremented render depth to child scope
+	compScope.Set("__render_depth__", depth+1)
 
 	// Populate props with default values
 	for _, propDef := range meta.Props {
