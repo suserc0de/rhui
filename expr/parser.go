@@ -4,29 +4,34 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"sync"
 	"unicode"
 )
 
 var (
-	cacheMu sync.RWMutex
-	cache   = make(map[string]Expr)
+	exprCache = newLRUCache(DefaultLRUCapacity)
 )
 
+// SetCacheCapacity reconfigures the LRU cache capacity for parsed expressions.
+func SetCacheCapacity(capacity int) {
+	exprCache = newLRUCache(capacity)
+}
+
+// ClearCache flushes the expression parse cache.
+func ClearCache() {
+	exprCache.clear()
+}
+
 // Parse compiles an expression string into an AST Expr.
-// Results are thread-safe and cached for instant subsequent lookups.
+// Results are thread-safe and cached in a bounded LRU cache for instant subsequent lookups.
 func Parse(input string) (Expr, error) {
 	trimmed := strings.TrimSpace(input)
 	if trimmed == "" {
 		return nil, nil
 	}
 
-	cacheMu.RLock()
-	if cached, ok := cache[trimmed]; ok {
-		cacheMu.RUnlock()
+	if cached, ok := exprCache.get(trimmed); ok {
 		return cached, nil
 	}
-	cacheMu.RUnlock()
 
 	p := &parser{
 		input: trimmed,
@@ -37,10 +42,7 @@ func Parse(input string) (Expr, error) {
 		return nil, err
 	}
 
-	cacheMu.Lock()
-	cache[trimmed] = node
-	cacheMu.Unlock()
-
+	exprCache.put(trimmed, node)
 	return node, nil
 }
 
