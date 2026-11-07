@@ -378,11 +378,26 @@ func resolveField(obj any, field string) any {
 	if m, ok := obj.(map[string]any); ok {
 		return m[field]
 	}
+	// Fast path: map[string]string
+	if m, ok := obj.(map[string]string); ok {
+		return m[field]
+	}
 
-	// Reflection for struct or struct pointer
+	// Reflection for generic maps, struct or struct pointer
 	val := reflect.ValueOf(obj)
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
+	}
+	if !val.IsValid() {
+		return nil
+	}
+	if val.Kind() == reflect.Map {
+		mapKey := reflect.ValueOf(field)
+		mapVal := val.MapIndex(mapKey)
+		if mapVal.IsValid() && mapVal.CanInterface() {
+			return mapVal.Interface()
+		}
+		return nil
 	}
 	if val.Kind() == reflect.Struct {
 		fieldVal := val.FieldByName(field)

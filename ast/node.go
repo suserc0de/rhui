@@ -5,12 +5,20 @@ type Node interface {
 	Position() Position
 }
 
+// AttrSegment represents a part of an interpolated attribute value.
+// It can either be a static string (Expr == nil) or a dynamic expression (Expr != nil).
+type AttrSegment struct {
+	Static string
+	Expr   any // Compiled expr.Expr
+}
+
 // Attribute represents an HTML attribute or a component prop.
 type Attribute struct {
-	Name         string   // e.g. "class", ":disabled", "variant"
-	Value        string   // e.g. "btn", "User.IsActive", "primary"
-	IsColon      bool     // true if binding with ':' e.g. :disabled="expr"
-	CompiledExpr any      // Pre-compiled expression AST
+	Name         string        // e.g. "class", ":disabled", "variant"
+	Value        string        // e.g. "btn", "User.IsActive", "primary"
+	IsColon      bool          // true if binding with ':' e.g. :disabled="expr"
+	CompiledExpr any           // Pre-compiled expression AST (for colon attributes)
+	Segments     []AttrSegment // Pre-compiled segments for interpolated static attributes (e.g. class="btn-{{ variant }}")
 	Pos          Position
 }
 

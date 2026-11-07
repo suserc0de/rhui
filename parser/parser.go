@@ -234,11 +234,19 @@ func (p *Parser) parseAttributes() ([]ast.Attribute, bool) {
 				// Boolean attribute like <input disabled />
 				val = "true"
 			}
+
+			// Check for interpolation inside literal attribute value (e.g. class="alert alert-{{ type }}")
+			var segments []ast.AttrSegment
+			if strings.Contains(val, "{{") && strings.Contains(val, "}}") {
+				segments = parseAttrSegments(val)
+			}
+
 			attrs = append(attrs, ast.Attribute{
-				Name:    attrName,
-				Value:   val,
-				IsColon: false,
-				Pos:     pos,
+				Name:     attrName,
+				Value:    val,
+				IsColon:  false,
+				Segments: segments,
+				Pos:      pos,
 			})
 
 		default:
@@ -503,4 +511,53 @@ func isVoidHTMLTag(name string) bool {
 	default:
 		return false
 	}
+}
+
+// parseAttrSegments splits a string containing "{{ ... }}" into static text and compiled expressions.
+func parseAttrSegments(raw string) []ast.AttrSegment {
+	var segments []ast.AttrSegment
+	cur := 0
+
+	for cur < len(raw) {
+		start := strings.Index(raw[cur:], "{{")
+		if start == -1 {
+			// Trailing static text
+			segments = append(segments, ast.AttrSegment{
+				Static: raw[cur:],
+			})
+			break
+		}
+
+		start += cur
+		if start > cur {
+			// Static text before {{
+			segments = append(segments, ast.AttrSegment{
+				Static: raw[cur:start],
+			})
+		}
+
+		end := strings.Index(raw[start+2:], "}}")
+		if end == -1 {
+			// Unclosed interpolation, treat remainder as static
+			segments = append(segments, ast.AttrSegment{
+				Static: raw[start:],
+			})
+			break
+		}
+
+		end += start + 2
+		exprStr := strings.TrimSpace(raw[start+2 : end])
+		var compiled expr.Expr
+		if exprStr != "" {
+			compiled, _ = expr.Parse(exprStr)
+		}
+
+		segments = append(segments, ast.AttrSegment{
+			Expr: compiled,
+		})
+
+		cur = end + 2
+	}
+
+	return segments
 }

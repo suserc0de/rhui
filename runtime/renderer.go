@@ -279,10 +279,13 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 				}
 			} else {
 				valStr := attr.Value
+				if len(attr.Segments) > 0 {
+					valStr = r.evalAttrSegments(attr.Segments, scope)
+				}
 				if attr.Name == "href" || attr.Name == "src" {
 					valStr = SanitizeURL(valStr)
 				} else {
-					valStr = EscapeHTML(valStr)
+					valStr = EscapeAttribute(valStr)
 				}
 				if _, err := io.WriteString(w, " "); err != nil {
 					return err
@@ -397,6 +400,9 @@ func (r *Renderer) renderComponent(w io.Writer, comp *ast.ComponentNode, scope *
 			propVal = val
 		} else {
 			propVal = attr.Value
+			if len(attr.Segments) > 0 {
+				propVal = r.evalAttrSegments(attr.Segments, scope)
+			}
 		}
 
 		// Check if declared in component props
@@ -522,4 +528,26 @@ func (r *Renderer) renderEach(w io.Writer, each *ast.EachNode, scope *Scope) err
 	}
 
 	return nil
+}
+
+func (r *Renderer) evalAttrSegments(segments []ast.AttrSegment, scope *Scope) string {
+	buf := GetBuffer()
+	defer PutBuffer(buf)
+
+	for _, seg := range segments {
+		if seg.Expr == nil {
+			buf.WriteString(seg.Static)
+		} else {
+			var val any
+			var err error
+			if ce, ok := seg.Expr.(expr.Expr); ok {
+				val, err = r.evaluator.EvalCompiled(ce, scope)
+			}
+			if err == nil && val != nil {
+				buf.WriteString(fastFormatValue(val))
+			}
+		}
+	}
+
+	return buf.String()
 }
