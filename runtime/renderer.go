@@ -234,6 +234,42 @@ func (r *Renderer) renderElement(w io.Writer, elem *ast.ElementNode, scope *Scop
 				continue
 			}
 
+			// Dynamic class binding :class handling
+			if attrName == "class" {
+				classStr := formatDynamicClasses(val)
+				if classStr != "" {
+					classStr = EscapeAttribute(classStr)
+					if _, err := io.WriteString(w, " class=\""); err != nil {
+						return err
+					}
+					if _, err := io.WriteString(w, classStr); err != nil {
+						return err
+					}
+					if _, err := io.WriteString(w, "\""); err != nil {
+						return err
+					}
+				}
+				continue
+			}
+
+			// Dynamic style binding :style handling
+			if attrName == "style" {
+				styleStr := formatDynamicStyles(val)
+				if styleStr != "" {
+					styleStr = EscapeAttribute(styleStr)
+					if _, err := io.WriteString(w, " style=\""); err != nil {
+						return err
+					}
+					if _, err := io.WriteString(w, styleStr); err != nil {
+						return err
+					}
+					if _, err := io.WriteString(w, "\""); err != nil {
+						return err
+					}
+				}
+				continue
+			}
+
 			// Boolean attribute handling:
 			// If false or nil, omit the attribute entirely!
 			if b, ok := val.(bool); ok {
@@ -397,6 +433,11 @@ func (r *Renderer) renderComponent(w io.Writer, comp *ast.ComponentNode, scope *
 			if err != nil {
 				return err
 			}
+			if propName == "class" {
+				val = formatDynamicClasses(val)
+			} else if propName == "style" {
+				val = formatDynamicStyles(val)
+			}
 			propVal = val
 		} else {
 			propVal = attr.Value
@@ -550,4 +591,133 @@ func (r *Renderer) evalAttrSegments(segments []ast.AttrSegment, scope *Scope) st
 	}
 
 	return buf.String()
+}
+
+// formatDynamicClasses formats string, []string, []any, map[string]bool, or map[string]any into a space-separated class string.
+func formatDynamicClasses(val any) string {
+	if val == nil {
+		return ""
+	}
+	switch v := val.(type) {
+	case string:
+		return strings.TrimSpace(v)
+	case []string:
+		var valid []string
+		for _, s := range v {
+			trimmed := strings.TrimSpace(s)
+			if trimmed != "" {
+				valid = append(valid, trimmed)
+			}
+		}
+		return strings.Join(valid, " ")
+	case []any:
+		var valid []string
+		for _, item := range v {
+			if item != nil {
+				str := strings.TrimSpace(fastFormatValue(item))
+				if str != "" {
+					valid = append(valid, str)
+				}
+			}
+		}
+		return strings.Join(valid, " ")
+	case map[string]bool:
+		var valid []string
+		for cls, ok := range v {
+			if ok {
+				trimmed := strings.TrimSpace(cls)
+				if trimmed != "" {
+					valid = append(valid, trimmed)
+				}
+			}
+		}
+		return strings.Join(valid, " ")
+	case map[string]any:
+		var valid []string
+		for cls, cond := range v {
+			if expr.IsTruthy(cond) {
+				trimmed := strings.TrimSpace(cls)
+				if trimmed != "" {
+					valid = append(valid, trimmed)
+				}
+			}
+		}
+		return strings.Join(valid, " ")
+	default:
+		rv := reflect.ValueOf(val)
+		if rv.Kind() == reflect.Map {
+			var valid []string
+			iter := rv.MapRange()
+			for iter.Next() {
+				if expr.IsTruthy(iter.Value().Interface()) {
+					keyStr := strings.TrimSpace(fmt.Sprint(iter.Key().Interface()))
+					if keyStr != "" {
+						valid = append(valid, keyStr)
+					}
+				}
+			}
+			return strings.Join(valid, " ")
+		}
+		return strings.TrimSpace(fastFormatValue(val))
+	}
+}
+
+// formatDynamicStyles formats string, map[string]string, or map[string]any into CSS style format key: value;
+func formatDynamicStyles(val any) string {
+	if val == nil {
+		return ""
+	}
+	switch v := val.(type) {
+	case string:
+		return strings.TrimSpace(v)
+	case map[string]string:
+		var parts []string
+		for prop, valStr := range v {
+			prop = strings.TrimSpace(prop)
+			valStr = strings.TrimSpace(valStr)
+			if prop != "" && valStr != "" {
+				parts = append(parts, prop+": "+valStr)
+			}
+		}
+		if len(parts) == 0 {
+			return ""
+		}
+		return strings.Join(parts, "; ") + ";"
+	case map[string]any:
+		var parts []string
+		for prop, valAny := range v {
+			prop = strings.TrimSpace(prop)
+			if prop != "" && valAny != nil {
+				valStr := strings.TrimSpace(fastFormatValue(valAny))
+				if valStr != "" {
+					parts = append(parts, prop+": "+valStr)
+				}
+			}
+		}
+		if len(parts) == 0 {
+			return ""
+		}
+		return strings.Join(parts, "; ") + ";"
+	default:
+		rv := reflect.ValueOf(val)
+		if rv.Kind() == reflect.Map {
+			var parts []string
+			iter := rv.MapRange()
+			for iter.Next() {
+				prop := strings.TrimSpace(fmt.Sprint(iter.Key().Interface()))
+				valAny := iter.Value().Interface()
+				if prop != "" && valAny != nil {
+					valStr := strings.TrimSpace(fastFormatValue(valAny))
+					if valStr != "" {
+						parts = append(parts, prop+": "+valStr)
+					}
+				}
+			}
+			if len(parts) == 0 {
+				return ""
+			}
+			return strings.Join(parts, "; ") + ";"
+		}
+		return strings.TrimSpace(fastFormatValue(val))
+	}
 }
