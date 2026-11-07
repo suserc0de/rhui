@@ -317,7 +317,22 @@ func serveSitemap(w http.ResponseWriter, r *http.Request) {
 
 ## 8. Best Practices, Security & Troubleshooting
 
-### Security & Resilience Hardening (v1.0.4 - v1.0.5)
+### CSS Framework Integration & Dynamic Styling (v1.0.7+)
+- **Attribute Value Interpolation**: Embed dynamic variables directly in class or attribute strings:
+  ```html
+  <div class="alert alert-{{ type }} {{ customClass }}" id="box-{{ id }}">
+  ```
+- **Declarative `:class` Binding**: Pass map or slice expressions directly to toggle utility classes:
+  ```html
+  <button :class="{'bg-blue-600 text-white': isPrimary, 'opacity-50 cursor-not-allowed': disabled}">
+  ```
+- **Declarative `:style` Binding**: Pass inline CSS style maps:
+  ```html
+  <div :style="{'background-color': bgColor, 'font-size': size + 'px'}">
+  ```
+- **Tailwind Scanner Setup**: Point your `tailwind.config.js` content to `./templates/**/*.rhui` or `./views/**/*.rhui`.
+
+### Security & Resilience Hardening (v1.0.4 - v1.0.7)
 - **Inline Event Handler Protection**: All attributes starting with `on` (`onclick`, `onerror`, `onload`, `onmouseover`, etc.) are automatically blocked on dynamic attribute spreading (`:attrs="attrs"`).
 - **Strict URL Scheme Allowlist**: Dynamic URL bindings on `href` and `src` only allow safe protocols (`http://`, `https://`, `mailto:`, `tel:`, `sms:`) and relative/anchor paths (`#`, `/`, `./`, `../`, `?`). Pseudo-protocols (`javascript:`, `data:`, `vbscript:`, `blob:`, `file:`) and protocol-relative URIs (`//`) are strictly neutralized to `#unsafe-url`.
 - **Recursion Depth Limit**: Configure `rhui.WithMaxRenderDepth(64)` (default: 64) to guard against circular component recursion and Stack Overflow DoS.

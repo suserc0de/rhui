@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2026-11-07
+
+### CSS Framework Ergonomics & Attributes (P0)
+- **Attribute Value Interpolation**: Evaluates expressions embedded inside static attributes (`class="alert alert-{{ type }} {{ customClass }}"`, `id="box-{{ id }}"`, `data-role="{{ role }}"`). Precompiled into AST segments at parse-time for maximum rendering speed and escaped via `EscapeAttribute()`.
+- **Dynamic `:class` Binding**: Added support for map and slice class expressions (`:class="{'btn-primary': isPrimary, 'opacity-50': disabled}"` or `:class="['btn', customClass]"`).
+- **Dynamic `:style` Binding**: Added support for inline CSS style maps (`:style="{'background-color': color, 'font-size': size + 'px'}"`).
+- **Inline Map & Slice Literals in Expressions**: Parser now supports `{ 'key': val }` and `[ 'item1', 'item2' ]` syntax directly within template expressions.
+- **Tailwind CSS & Bootstrap Component Kits**: Added comprehensive verification and full compatibility test suites for Tailwind CSS utility composition and Bootstrap 5 components.
+
 ## [1.0.5] - 2026-11-06
 
 ### Security Hardening (P0)

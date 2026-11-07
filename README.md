@@ -4,13 +4,13 @@
   <a href="https://github.com/suserc0de/rhui/actions"><img src="https://img.shields.io/github/actions/workflow/status/suserc0de/rhui/ci.yml?branch=master&style=flat-square&logo=github&label=CI" alt="CI Status" /></a>
   <a href="https://pkg.go.dev/github.com/suserc0de/rhui"><img src="https://img.shields.io/badge/Go-Reference-007d9c?style=flat-square&logo=go&logoColor=white" alt="Go Reference" /></a>
   <a href="https://goreportcard.com/report/github.com/suserc0de/rhui"><img src="https://img.shields.io/badge/Go%20Report-A%2B-brightgreen?style=flat-square" alt="Go Report Card" /></a>
-  <a href="https://github.com/suserc0de/rhui/releases"><img src="https://img.shields.io/badge/Release-v1.0.5-blue?style=flat-square" alt="Latest Release" /></a>
+  <a href="https://github.com/suserc0de/rhui/releases"><img src="https://img.shields.io/badge/Release-v1.0.7-blue?style=flat-square" alt="Latest Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
 </p>
 
 <p align="center">
   <b>A component-based, high-performance Server-Side Rendering (SSR) template engine for Go.</b><br>
-  Zero JavaScript build-step &bull; Safe by default &bull; Reusable components with slots &bull; Event-Driven SSE
+  Zero JavaScript build-step &bull; Safe by default &bull; Reusable components with slots &bull; Event-Driven SSE &bull; Tailwind & Bootstrap ready
 </p>
 
 ---
@@ -24,6 +24,7 @@ With RHUI, you can organize your user interfaces into reusable components (`.rhu
 ### Key Features
 
 - **🧩 Declarative Reusable Components:** Write components like `<ui:Card>`, `<ui:Button>`, and layouts with clean HTML syntax.
+- **🎨 Tailwind CSS & Bootstrap Ready:** First-class ergonomics with **Attribute Value Interpolation** (`class="btn btn-{{ variant }}"`), dynamic `:class` map/slice binding (`:class="{'opacity-50': disabled}"`), and dynamic inline `:style` binding.
 - **⚡ Zero Build Step:** Templates are parsed and compiled in-memory during application startup. No `go generate` or CLI transpile step required.
 - **🏷️ Signature `.rhui` Extension:** Completely distinct from Go's standard `html/template` (`.tmpl`), preventing editor lint conflicts while remaining 100% compatible with HTML tooling.
 - **🛡️ Safe & Resilient by Default:** Contextual HTML escaping, strict URL scheme allowlist, inline event handler blocking (`onclick`, `onerror` blocked on `:attrs`), recursion depth limits against circular stack overflow, and thread-safe bounded LRU caching against memory exhaustion.
