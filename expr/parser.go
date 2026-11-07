@@ -236,6 +236,16 @@ func (p *parser) parsePrimary() (Expr, error) {
 		return val, nil
 	}
 
+	// Map literal: { 'key': expr, ... }
+	if ch == '{' {
+		return p.parseMapLiteral()
+	}
+
+	// Slice/Array literal: [ 'val1', expr, ... ]
+	if ch == '[' {
+		return p.parseSliceLiteral()
+	}
+
 	// String literal
 	if ch == '"' || ch == '\'' {
 		str, err := p.parseStringLiteral(ch)
@@ -367,6 +377,93 @@ func (p *parser) parseFunctionCall(funcName string) (Expr, error) {
 		Name: funcName,
 		Args: args,
 	}, nil
+}
+
+func (p *parser) parseMapLiteral() (Expr, error) {
+	p.pos++ // consume '{'
+	var entries []MapEntry
+
+	for {
+		p.skipWhitespace()
+		if p.pos >= len(p.input) {
+			return nil, fmt.Errorf("unclosed map literal '{'")
+		}
+		if p.input[p.pos] == '}' {
+			p.pos++ // consume '}'
+			break
+		}
+
+		// Key: can be string literal or identifier
+		key, err := p.parsePrimary()
+		if err != nil {
+			return nil, err
+		}
+
+		p.skipWhitespace()
+		if p.pos >= len(p.input) || p.input[p.pos] != ':' {
+			return nil, fmt.Errorf("expected ':' after map key")
+		}
+		p.pos++ // consume ':'
+
+		// Value
+		val, err := p.parseExpression()
+		if err != nil {
+			return nil, err
+		}
+
+		entries = append(entries, MapEntry{
+			Key:   key,
+			Value: val,
+		})
+
+		p.skipWhitespace()
+		if p.pos < len(p.input) && p.input[p.pos] == ',' {
+			p.pos++
+			continue
+		}
+		if p.pos < len(p.input) && p.input[p.pos] == '}' {
+			p.pos++
+			break
+		}
+		break
+	}
+
+	return &MapExpr{Entries: entries}, nil
+}
+
+func (p *parser) parseSliceLiteral() (Expr, error) {
+	p.pos++ // consume '['
+	var elements []Expr
+
+	for {
+		p.skipWhitespace()
+		if p.pos >= len(p.input) {
+			return nil, fmt.Errorf("unclosed slice literal '['")
+		}
+		if p.input[p.pos] == ']' {
+			p.pos++ // consume ']'
+			break
+		}
+
+		elem, err := p.parseExpression()
+		if err != nil {
+			return nil, err
+		}
+		elements = append(elements, elem)
+
+		p.skipWhitespace()
+		if p.pos < len(p.input) && p.input[p.pos] == ',' {
+			p.pos++
+			continue
+		}
+		if p.pos < len(p.input) && p.input[p.pos] == ']' {
+			p.pos++
+			break
+		}
+		break
+	}
+
+	return &SliceExpr{Elements: elements}, nil
 }
 
 func (p *parser) skipWhitespace() {

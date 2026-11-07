@@ -17,6 +17,49 @@ func (e *LiteralExpr) Eval(ctx Context) (any, error) {
 	return e.Value, nil
 }
 
+// MapExpr represents inline map literal expressions like {'class': condition, 'other': false}.
+type MapExpr struct {
+	Entries []MapEntry
+}
+
+type MapEntry struct {
+	Key   Expr
+	Value Expr
+}
+
+func (e *MapExpr) Eval(ctx Context) (any, error) {
+	result := make(map[string]any, len(e.Entries))
+	for _, entry := range e.Entries {
+		kVal, err := entry.Key.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+		vVal, err := entry.Value.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+		result[fmt.Sprint(kVal)] = vVal
+	}
+	return result, nil
+}
+
+// SliceExpr represents inline slice literal expressions like ['btn', 'btn-primary', customClass].
+type SliceExpr struct {
+	Elements []Expr
+}
+
+func (e *SliceExpr) Eval(ctx Context) (any, error) {
+	result := make([]any, len(e.Elements))
+	for i, elem := range e.Elements {
+		val, err := elem.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+		result[i] = val
+	}
+	return result, nil
+}
+
 // IdentExpr represents variable lookups, e.g. "user", "Title", "@index".
 type IdentExpr struct {
 	Name string
