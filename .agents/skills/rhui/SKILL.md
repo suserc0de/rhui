@@ -28,7 +28,7 @@ RHUI compiles declarative HTML-like component templates (`.rhui`) into pre-parse
 ## 2. Quickstart & Engine Initialization
 
 ### Package Import & Initialization
-Always initialize the engine using either functional options `rhui.New()` or the convenience constructor `rhui.NewEngine()`:
+Always initialize the engine using functional options with `rhui.New()` (or `rhui.Must(rhui.New(...))` for package-level variable initializations):
 
 ```go
 package main
@@ -39,15 +39,13 @@ import (
     "github.com/suserc0de/rhui"
 )
 
+// Package-level instance using rhui.Must
+var engine = rhui.Must(rhui.New(
+    rhui.WithDir("views"),
+    rhui.WithExtension(".rhui"),
+))
+
 func main() {
-    // Standard initialization with embedded or disk directory
-    engine, err := rhui.New(
-        rhui.WithDir("views"),
-        rhui.WithExtension(".rhui"),
-    )
-    if err != nil {
-        log.Fatalf("failed to initialize RHUI engine: %v", err)
-    }
 
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         data := map[string]any{

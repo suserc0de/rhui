@@ -2,7 +2,10 @@ package tests
 
 import (
 	"bytes"
+	"fmt"
 	htmltmpl "html/template"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/suserc0de/rhui"
@@ -31,14 +34,23 @@ func getBenchmarkData() map[string]any {
 	}
 }
 
-// BenchmarkRHUI_Render measures RHUI's AST evaluation + sync.Pool speed
-func BenchmarkRHUI_Render(b *testing.B) {
-	engine, err := rhui.New()
-	if err != nil {
-		b.Fatalf("failed to create engine: %v", err)
+// formatRupiahHelper formats integer to Indonesian Rupiah currency format "Rp 350.000",
+// identical to RHUI's built-in `| rupiah` pipe filter.
+func formatRupiahHelper(n int) string {
+	in := strconv.Itoa(n)
+	var out []byte
+	l := len(in)
+	for i := 0; i < l; i++ {
+		if i > 0 && (l-i)%3 == 0 {
+			out = append(out, '.')
+		}
+		out = append(out, in[i])
 	}
+	return fmt.Sprintf("Rp %s", string(out))
+}
 
-	tmpl := `<div class="container">
+const (
+	rhuiHeadToHeadTmpl = `<div class="container">
   <h1>{{ Title }}</h1>
   <table class="table">
     <each items="Items" as="item">
@@ -59,7 +71,88 @@ func BenchmarkRHUI_Render(b *testing.B) {
   </table>
 </div>`
 
-	if err := engine.ParseTemplate("bench/table", tmpl); err != nil {
+	stdlibHeadToHeadTmpl = `<div class="container">
+  <h1>{{ .Title }}</h1>
+  <table class="table">
+    {{ range .Items }}
+      <tr>
+        <td>{{ .ID }}</td>
+        <td>{{ .Name }}</td>
+        <td>{{ rupiah .Price }}</td>
+        <td>
+          {{ if .IsActive }}
+            <span class="badge-active">Active</span>
+          {{ else }}
+            <span class="badge-disabled">Disabled</span>
+          {{ end }}
+        </td>
+      </tr>
+    {{ end }}
+  </table>
+</div>`
+)
+
+// normalizeHTML removes non-significant whitespace between tags to allow strict semantic HTML comparison
+func normalizeHTML(s string) string {
+	lines := strings.Split(s, "\n")
+	var cleaned []string
+	for _, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		if trimmed != "" {
+			cleaned = append(cleaned, trimmed)
+		}
+	}
+	return strings.Join(cleaned, "")
+}
+
+// TestBenchmarkOutputParity proves that RHUI and html/template render 100% SEMANTICALLY IDENTICAL
+// HTML output for the benchmark test case, ensuring zero bias and 100% fair head-to-head comparison.
+func TestBenchmarkOutputParity(t *testing.T) {
+	data := getBenchmarkData()
+
+	// 1. Render with RHUI
+	engine, err := rhui.New()
+	if err != nil {
+		t.Fatalf("failed to create RHUI engine: %v", err)
+	}
+	if err := engine.ParseTemplate("bench/table", rhuiHeadToHeadTmpl); err != nil {
+		t.Fatalf("failed to parse RHUI template: %v", err)
+	}
+	var rhuiBuf bytes.Buffer
+	if err := engine.Render(&rhuiBuf, "bench/table", data); err != nil {
+		t.Fatalf("RHUI render failed: %v", err)
+	}
+
+	// 2. Render with html/template
+	funcMap := htmltmpl.FuncMap{
+		"rupiah": formatRupiahHelper,
+	}
+	stdlibTmpl, err := htmltmpl.New("table").Funcs(funcMap).Parse(stdlibHeadToHeadTmpl)
+	if err != nil {
+		t.Fatalf("failed to parse stdlib template: %v", err)
+	}
+	var stdlibBuf bytes.Buffer
+	if err := stdlibTmpl.Execute(&stdlibBuf, data); err != nil {
+		t.Fatalf("stdlib render failed: %v", err)
+	}
+
+	// 3. Verify 100% parity
+	rhuiNorm := normalizeHTML(rhuiBuf.String())
+	stdlibNorm := normalizeHTML(stdlibBuf.String())
+
+	if rhuiNorm != stdlibNorm {
+		t.Fatalf("Benchmark output disparity detected!\nRHUI Output:\n%s\nStdlib Output:\n%s", rhuiNorm, stdlibNorm)
+	}
+}
+
+// BenchmarkRHUI_Render measures RHUI's AST evaluation + sync.Pool speed
+func BenchmarkRHUI_Render(b *testing.B) {
+	engine, err := rhui.New()
+	if err != nil {
+		b.Fatalf("failed to create engine: %v", err)
+	}
+
+	if err := engine.ParseTemplate("bench/table", rhuiHeadToHeadTmpl); err != nil {
 		b.Fatalf("ParseTemplate failed: %v", err)
 	}
 
@@ -78,39 +171,21 @@ func BenchmarkRHUI_Render(b *testing.B) {
 
 // BenchmarkStdlib_HtmlTemplate measures Go standard library html/template
 func BenchmarkStdlib_HtmlTemplate(b *testing.B) {
-	rawTmpl := `<div class="container">
-  <h1>{{ .Title }}</h1>
-  <table class="table">
-    {{ range .Items }}
-      <tr>
-        <td>{{ .ID }}</td>
-        <td>{{ .Name }}</td>
-        <td>Rp {{ .Price }}</td>
-        <td>
-          {{ if .IsActive }}
-            <span class="badge-active">Active</span>
-          {{ else }}
-            <span class="badge-disabled">Disabled</span>
-          {{ end }}
-        </td>
-      </tr>
-    {{ end }}
-  </table>
-</div>`
-
-	tmpl, err := htmltmpl.New("table").Parse(rawTmpl)
+	funcMap := htmltmpl.FuncMap{
+		"rupiah": formatRupiahHelper,
+	}
+	tmpl, err := htmltmpl.New("table").Funcs(funcMap).Parse(stdlibHeadToHeadTmpl)
 	if err != nil {
 		b.Fatalf("failed to parse stdlib template: %v", err)
 	}
 
 	data := getBenchmarkData()
-	var buf bytes.Buffer
+	var buf discardWriter
 
 	b.ResetTimer()
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		buf.Reset()
 		if err := tmpl.Execute(&buf, data); err != nil {
 			b.Fatalf("Execute failed: %v", err)
 		}

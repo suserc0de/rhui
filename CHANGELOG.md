@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] - 2026-11-08
+
+### API Ergonomics & Documentation (P0)
+- **Idiomatic Constructor (`rhui.New`)**: Standardized `rhui.New(opts ...Option) (*Engine, error)` as the sole primary constructor for idiomatic error handling.
+- **Convenience Helper (`rhui.Must`)**: Added `rhui.Must(e *Engine, err error) *Engine` for panic-on-failure package-level initializations matching standard library conventions (`template.Must`).
+- **Deprecated Panic-Prone Constructor (`rhui.NewEngine`)**: Formally marked `rhui.NewEngine()` and `rhui.EngineOptions` as deprecated, re-routing `NewEngine()` safely to `Must(New(opts...))` with clear GoDoc migration guidance.
+- **Comprehensive GoDoc & Runnable Examples**: Added comprehensive documentation and runnable GoDoc examples (`Example_basic`, `ExampleMust`, `ExampleWithFS`, `ExampleEngine_RenderFragment`, `ExampleEngine_RegisterFilter`, `ExampleEngine_RegisterFunc`, `ExampleEngine_RenderWithLayout`) verified via `go test`.
+
+### Benchmark Credibility & 100% Parity (P0)
+- **100% Identical Head-to-Head Benchmark**: Standardized benchmark test cases between RHUI and `html/template` with 100% identical data inputs, DOM structures, and output formatting.
+- **Automated Output Parity Verification**: Added `TestBenchmarkOutputParity` to guarantee 100% semantic HTML equality before executing performance benchmarks.
+
 ## [1.0.7] - 2026-11-07
 
 ### CSS Framework Ergonomics & Attributes (P0)
