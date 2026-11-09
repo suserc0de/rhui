@@ -323,6 +323,10 @@ func (p *Parser) parseIf(pos ast.Position) *ast.IfNode {
 				}
 				p.expectClosingTag("else")
 			}
+			// Skip whitespace before possible </if>
+			if p.curToken.Type == TokenText && strings.TrimSpace(p.curToken.Value) == "" {
+				p.nextToken()
+			}
 			if p.isClosingTag("if") {
 				p.expectClosingTag("if")
 			}
@@ -445,7 +449,7 @@ func (n *namedSlotContainer) Position() ast.Position { return n.pos }
 
 func (p *Parser) parseSlot(pos ast.Position, rawName string) ast.Node {
 	p.nextToken() // consume 'slot' or 'slot:name'
-	_, isSelfClose := p.parseAttributes()
+	attrs, isSelfClose := p.parseAttributes()
 
 	slotName := ""
 	if strings.HasPrefix(rawName, "slot:") {
@@ -454,15 +458,17 @@ func (p *Parser) parseSlot(pos ast.Position, rawName string) ast.Node {
 
 	if isSelfClose {
 		return &ast.SlotNode{
-			Name: slotName,
-			Pos:  pos,
+			Name:       slotName,
+			Attributes: attrs,
+			Pos:        pos,
 		}
 	}
 
 	// Slot with fallback content (e.g. <slot>fallback</slot> or <slot:actions>fallback</slot:actions>)
 	slotNode := &ast.SlotNode{
-		Name: slotName,
-		Pos:  pos,
+		Name:       slotName,
+		Attributes: attrs,
+		Pos:        pos,
 	}
 
 	for p.curToken.Type != TokenEOF && !p.isClosingTag(rawName) {

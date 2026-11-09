@@ -96,11 +96,12 @@ type ComponentDefNode struct {
 
 func (n *ComponentDefNode) Position() Position { return n.Pos }
 
-// SlotNode represents a slot placeholder in a component (<slot /> or <slot:header />) with optional fallback children.
+// SlotNode represents a slot placeholder in a component (<slot /> or <slot:header />) with optional fallback children and scoped props.
 type SlotNode struct {
-	Name     string // empty for default slot, otherwise name of slot e.g. "header"
-	Fallback []Node // fallback nodes to render if caller doesn't provide content
-	Pos      Position
+	Name       string      // empty for default slot, otherwise name of slot e.g. "header"
+	Attributes []Attribute // Scoped props passed to slot e.g. <slot item="row" />
+	Fallback   []Node      // fallback nodes to render if caller doesn't provide content
+	Pos        Position
 }
 
 func (n *SlotNode) Position() Position { return n.Pos }

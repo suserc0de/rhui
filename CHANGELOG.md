@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-11-10
+
+### Developer Tooling & CLI (P0)
+- **Official CLI Binary (`cmd/rhui`)**: Added standalone developer tooling with `rhui check` / `rhui lint` for pre-build syntax validation and `rhui fmt` for standard 2-space template formatting.
+- **CI/CD Integration**: Integrated `rhui check` into GitHub Actions workflow to validate templates across PRs and pushes.
+
+### Showcase & Ecosystem (P0)
+- **Realtime Store Killer Demo (`examples/realtime-store`)**: Built a fullstack reactive showcase combining Go standard library (`net/http`), RHUI component templates, Tailwind CSS, HTMX partial fragment swaps (`RenderFragment`), and Server-Sent Events (`rhui/sse`) live stock synchronization.
+
+### Template Engine Ergonomics (P0)
+- **Scoped Slots (Slot Props)**: Added support for passing props from inside a component slot placeholder to the caller's projected slot content (`<slot item="row" index="idx" />`), enabling advanced table and list component encapsulation.
+- **Void & Self-Closing Component Tags**: Refined parser to support void and self-closing tags like `<ui:Icon name="check" />` seamlessly.
+
 ## [1.0.8] - 2026-11-08
 
 ### API Ergonomics & Documentation (P0)

@@ -1,0 +1,44 @@
+<!-- examples/realtime-store/templates/components/ProductCard.rhui -->
+<component name="ProductCard">
+  <props>
+    <prop name="id" default="0" />
+    <prop name="title" default="Untitled" />
+    <prop name="price" default="0" />
+    <prop name="stock" default="0" />
+    <prop name="category" default="General" />
+  </props>
+
+  <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-slate-700 transition shadow-lg">
+    <div>
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <span class="text-xs uppercase font-mono tracking-wider text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-md">{{ category }}</span>
+        <!-- Realtime Stock Fragment via SSE -->
+        <div id="stock-badge-{{ id }}">
+          <ui:StockBadge stock="stock" />
+        </div>
+      </div>
+
+      <h3 class="text-lg font-bold text-white mb-2">{{ title }}</h3>
+      <p class="text-2xl font-black text-teal-400 mb-6">{{ price | rupiah }}</p>
+    </div>
+
+    <!-- Actions (HTMX Partial Swap) -->
+    <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-3">
+      <if test="stock > 0">
+        <button 
+          hx-post="/cart/add?id={{ id }}"
+          hx-target="#cart-badge"
+          hx-swap="outerHTML"
+          class="w-full bg-teal-500 hover:bg-teal-400 active:scale-95 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          Add to Cart
+        </button>
+      </if>
+      <else>
+        <button disabled class="w-full bg-slate-800 text-slate-500 font-medium py-2.5 px-4 rounded-xl text-sm cursor-not-allowed">
+          Unavailable
+        </button>
+      </else>
+    </div>
+  </div>
+</component>

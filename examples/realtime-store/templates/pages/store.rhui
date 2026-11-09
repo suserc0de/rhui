@@ -1,0 +1,52 @@
+<!-- examples/realtime-store/templates/pages/store.rhui -->
+<div class="space-y-8" hx-ext="sse" sse-connect="/sse/live-stock">
+
+  <!-- Hero Header -->
+  <div class="bg-gradient-to-r from-teal-900/30 via-slate-900 to-indigo-950/30 border border-slate-800 rounded-3xl p-8 md:p-12">
+    <div class="max-w-2xl">
+      <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
+        Realtime Cloud Marketplace
+      </h1>
+      <p class="text-slate-400 text-base md:text-lg mb-6 leading-relaxed">
+        Experience zero-build server-side reactivity. Stock levels are pushed live over 
+        <span class="text-teal-400 font-semibold">Server-Sent Events (SSE)</span>, and cart actions update via 
+        <span class="text-indigo-400 font-semibold">HTMX Targeted Fragments</span> without full page reloads.
+      </p>
+
+      <!-- Simulated Flash Sale Action -->
+      <div class="flex items-center gap-4">
+        <form hx-post="/simulate/purchase" hx-swap="none" class="flex items-center gap-3">
+          <button type="submit" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 border border-slate-700 font-semibold px-4 py-2.5 rounded-xl text-xs transition cursor-pointer flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            Simulate Remote Customer Order (Triggers SSE)
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Grid -->
+  <div>
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-white flex items-center gap-2">
+        <span>Available Cloud Instances</span>
+        <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">{{ len(Products) }} items</span>
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <each items="Products" as="p">
+        <!-- Listen to live SSE stock updates for each item -->
+        <div sse-swap="stock-update-{{ p.ID }}" hx-target="#stock-badge-{{ p.ID }}" hx-swap="innerHTML">
+          <ui:ProductCard 
+            id="p.ID" 
+            title="p.Title" 
+            price="p.Price" 
+            stock="p.Stock" 
+            category="p.Category" />
+        </div>
+      </each>
+    </div>
+  </div>
+
+</div>

@@ -35,3 +35,7 @@ jobs:
         run: |
           cd examples/admin-dashboard
           go build -v .
+
+      - name: Build & Run RHUI CLI Linter
+        run: |
+          go run ./cmd/rhui check ./examples

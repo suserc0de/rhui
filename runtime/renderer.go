@@ -502,9 +502,41 @@ func (r *Renderer) renderSlot(w io.Writer, slot *ast.SlotNode, compScope *Scope)
 		return nil
 	}
 
-	// Render slot contents with the parent/caller's scope
+	// If the slot passes scoped props (e.g. <slot item="row" /> or :item="row"),
+	// create an augmented sub-scope inheriting from parentScope.
+	renderScope := parentScope
+	if len(slot.Attributes) > 0 {
+		scopedData := make(map[string]any, len(slot.Attributes))
+		for _, attr := range slot.Attributes {
+			var val any
+			var err error
+			if attr.CompiledExpr != nil {
+				if ce, ok := attr.CompiledExpr.(expr.Expr); ok {
+					val, err = r.evaluator.EvalCompiled(ce, compScope)
+				}
+			} else if attr.IsColon {
+				val, err = r.evaluator.Eval(attr.Value, compScope)
+			} else {
+				// Evaluate attribute expression from component scope (e.g. item="row")
+				val, err = r.evaluator.Eval(attr.Value, compScope)
+				if err != nil || val == nil {
+					val = attr.Value
+				}
+			}
+			if err == nil {
+				scopedData[attr.Name] = val
+			}
+		}
+		renderScope = parentScope.SubScope()
+		for k, v := range scopedData {
+			renderScope.Set(k, v)
+		}
+		defer ReleaseScope(renderScope)
+	}
+
+	// Render slot contents with the effective scope
 	for _, node := range slotNodes {
-		if err := r.RenderNode(w, node, parentScope); err != nil {
+		if err := r.RenderNode(w, node, renderScope); err != nil {
 			return err
 		}
 	}
