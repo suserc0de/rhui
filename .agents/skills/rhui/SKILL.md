@@ -3,9 +3,9 @@ name: rhui-component-development
 description: >-
   Expert guidance for developing, testing, and debugging server-rendered web applications 
   using RHUI (Go Component Template Engine). Covers template syntax (.rhui), components, 
-  props, default and named slots, attribute spreading (:attrs), control flow directives (<if>, <each>), 
+  props, default and named slots, scoped slots (slot props), attribute spreading (:attrs), control flow directives (<if>, <each>), 
   built-in pipe filters (| rupiah, | upper), framework adapters (Gin, Echo, Fiber, Chi, net/http), 
-  realtime SSE streaming with HTMX, and SEO sitemap/JSON-LD generation.
+  realtime SSE streaming with HTMX, SEO sitemap/JSON-LD generation, and CLI tooling (rhui check, rhui fmt).
 ---
 
 # RHUI AI Skill: Component-Based SSR Template Engine for Go
@@ -111,6 +111,42 @@ Invoke components inside pages or layouts using `<ui:Name>`:
     <a href="/metrics" class="text-brand-400 hover:underline">View detailed metrics &rarr;</a>
   </slot:footer>
 </ui:Card>
+```
+
+Void/childless components can also be invoked with clean self-closing tags:
+```html
+<ui:Icon name="check" />
+<ui:Avatar src="/user.png" />
+```
+
+### Scoped Slots (Slot Props) (v1.1.0+)
+A component can expose contextual data back to the caller's projected slot content by adding attributes to `<slot>`:
+
+```html
+<!-- views/components/DataTable.rhui -->
+<component name="DataTable">
+  <props>
+    <prop name="items" default="[]" />
+  </props>
+  <table class="table-auto w-full">
+    <each items="items" as="row" index="idx">
+      <!-- Expose row and index to the projected caller template -->
+      <tr>
+        <slot item="row" index="idx" />
+      </tr>
+    </each>
+  </table>
+</component>
+```
+
+In the caller template, access slot props directly by their variable names:
+```html
+<!-- views/pages/users.rhui -->
+<ui:DataTable :items="Users">
+  <td class="font-mono text-xs">#{{ index }}</td>
+  <td class="font-bold text-slate-100">{{ item.Name }}</td>
+  <td><span class="badge">{{ item.Role }}</span></td>
+</ui:DataTable>
 ```
 
 ### Attribute Spreading (`:attrs`)
@@ -341,4 +377,5 @@ func serveSitemap(w http.ResponseWriter, r *http.Request) {
 - **Never concatenate raw HTML in Go handlers**: Keep UI layout and tag composition inside `.rhui` components; pass clean domain structs or maps from Go.
 - **Always close `<if>` before opening `<else>`**: In RHUI syntax, write `<if test="...">...</if><else>...</else>`.
 - **VS Code Syntax Highlighting**: Add `"files.associations": { "*.rhui": "html" }` in `.vscode/settings.json`.
+- **CLI Tooling (`rhui check` & `rhui fmt`)**: Run `go run ./cmd/rhui check ./views` to validate templates in CI, and `go run ./cmd/rhui fmt -w ./views` to format indentation.
 - **Concurrency & Thread Safety**: All template ASTs and engine states are managed via atomic snapshots (`atomic.Pointer[engineState]`), safe for continuous concurrent `Render()` operations during background `Reload()`.
