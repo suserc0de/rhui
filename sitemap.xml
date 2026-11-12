@@ -43,6 +43,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://suserc0de.github.io/rhui/cli/</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://suserc0de.github.io/rhui/sse/</loc>
     <lastmod>2026-11-02</lastmod>
     <changefreq>weekly</changefreq>
